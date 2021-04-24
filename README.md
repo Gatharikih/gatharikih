@@ -3,6 +3,7 @@
 - 🌱 I’m currently learning front-end frameworks specifically Vue and React;
 - 💞️ I’m looking to collaborate on founding tech startup in Kenya;
 - 📫 You can reach me via email sgatharikih@gmail.com. 
+- LAMP, WAMP, MEAN stack variants - MySQL/Sequelize, MongoDB/Mongoose, NodeJS/Express, Java/Android, JavaScript/ES6+
 
 <!---
 Gatharikih/Gatharikih is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
