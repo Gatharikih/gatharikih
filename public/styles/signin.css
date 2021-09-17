@@ -9,6 +9,11 @@ body {
   padding-top: 40px;
   padding-bottom: 40px;
   background-color: #f5f5f5;
+  color: #778899;
+}
+
+h6 {
+  color: darkslategrey;
 }
 
 .form-signin {
@@ -59,6 +64,14 @@ body {
 
 .fw-500 {
   font-weight: 500;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+label, .fs-9rem {
+  font-size: .9rem !important;
 }
 
 @media (min-width: 768px) {

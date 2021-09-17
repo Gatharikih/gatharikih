@@ -1,27 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="auto">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
-  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-  <meta name="generator" content="Hugo 0.88.1">
-  <title>Signin Template · Bootstrap v5.1</title>
+  <meta name="description" content="A UOEM student leave system">
+  <meta name="author" content="the_script">
+  <title>Student Leave System</title>
 
   <!-- Bootstrap core CSS -->
   <link href="./styles/bootstrap.min.css" rel="stylesheet">
-  <!-- Custom styles for this template -->
+  <link href="./styles/daterangepicker.css" rel="stylesheet">
   <link href="./styles/signin.css" rel="stylesheet">
 </head>
 
-<body class="text-center">
+<body class="text-center mt-5">
   <div class="container-fluid">
     <div class="form-signin d-none">
       <form>
         <img class="mb-4" src="./assets/person-fill.svg" alt="" width="72" height="57">
         <h4 class="h4 mb-3 fw-normal font-monospace">Please sign in</h4>
-  
+
         <div class="form-floating">
           <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
           <label for="floatingInput">Email address</label>
@@ -34,70 +33,152 @@
         <p class="mt-5 mb-3 text-muted">&copy; University of Embu</p>
       </form>
     </div>
-    
-  <div class="form-leave d-block w-75 ms-5">
-    <form class="row g-3 ms-md-5">
-      <div class="col-md-12">
-        <h6>STUDENT PARTICULARS</h6>
-      </div>
-      <div class="col-md-6">
-        <label for="input-name" class="form-label float-start fw-500">Name</label>
-        <input type="text" class="form-control" id="input-name" placeholder="Enter full name">
-      </div>
-      <div class="col-md-6">
-        <label for="input-reg" class="form-label float-start fw-500">Reg. No</label>
-        <input type="text" class="form-control" id="input-reg" placeholder="Enter admission number">
-      </div>
-      <div class="col-md-6">
-        <label for="input-sch" class="form-label float-start fw-500">School</label>
-        <select id="input-sch" class="form-select">
-          <option selected>Choose...</option>
-          <option>School of Pure and Applied Sciences</option>
-          <option>School of Land and Water Management</option>
-        </select>
-      </div>
-      <div class="col-md-6">
-        <label for="input-dept" class="form-label float-start fw-500">Department</label>
-        <select id="input-dept" class="form-select">
-          <option selected>Choose...</option>
-          <option>Department of Mathematics and Computing</option>
-          <option>Department of Education</option>
-        </select>
-      </div>
-      <div class="col-md-12 float-start">
-        <span class="me-4 float-start fw-500">Residence:</span>
-        <div class="form-check form-check-inline float-start ms-4">
-          <input class="form-check-input" type="radio" name="residence-radio-options" id="resident-radio" value="resident">
-          <label class="form-check-label" for="resident-radio">Resident</label>
+
+    <div class="form-leave d-block w-75 ms-5 mt-5">
+      <form class="row g-3 ms-md-5">
+        <div class="col-md-12">
+          <h6 class="underline float-start">STUDENT PARTICULARS</h6>
         </div>
-        <div class="form-check form-check-inline float-start">
-          <input class="form-check-input" type="radio" name="residence-radio-options" id="non-resident-radio" value="nonresident">
-          <label class="form-check-label" for="non-resident-radio">Non-resident</label>
+        <div class="col-md-6">
+          <label for="input-name" class="form-label float-start fw-500">Name</label>
+          <input type="text" class="form-control" id="input-name" placeholder="Enter full name">
         </div>
-      </div>
-      <div id="hostel-name-div" class="col-md-6">
-        <label for="hostel-name-input" class="form-label float-start fw-500">Hostel name</label>
-        <input type="text" class="form-control" id="hostel-name-input" placeholder="Enter the hostel name">
-      </div>
-      <div id="hostel-room-div" class="col-md-6">
-        <label for="room-number-input" class="form-label float-start fw-500">Room number</label>
-        <input type="text" class="form-control" id="room-number-input" placeholder="Enter the room number">
-      </div>
-      <div id="apartment-name-div" class="col-md-4">
-        <label for="apartment-name-input" class="form-label float-start fw-500">Apartment/hostel name:</label>
-        <input type="text" class="form-control" id="apartment-name-input" placeholder="apartment or hostel name">
-      </div>
-      <div id="location-desc-div" class="col-md-9">
-        <label for="describe-location-textarea" class="form-label float-start fw-500">Describe the location:</label>
-        <textarea class="form-control" id="describe-location-textarea" rows="2" placeholder="Describe the location of your residence"></textarea>
-      </div>
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary">Sign in</button>
-      </div>
-    </form>
-  </div>
+        <div class="col-md-6">
+          <label for="input-reg" class="form-label float-start fw-500">Reg. No</label>
+          <input type="text" class="form-control" id="input-reg" placeholder="Enter admission number">
+        </div>
+        <div class="col-md-6">
+          <label for="input-sch" class="form-label float-start fw-500">School</label>
+          <select id="input-sch" class="form-select">
+            <option selected>Choose...</option>
+            <option>School of Pure and Applied Sciences</option>
+            <option>School of Land and Water Management</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="input-dept" class="form-label float-start fw-500">Department</label>
+          <select id="input-dept" class="form-select">
+            <option selected>Choose...</option>
+            <option>Department of Mathematics and Computing</option>
+            <option>Department of Education</option>
+          </select>
+        </div>
+        <div class="col-md-12 float-start">
+          <span class="me-4 float-start fw-500 fs-9rem">Residence:</span>
+          <div class="form-check form-check-inline float-start ms-4">
+            <input class="form-check-input" type="radio" name="residence-radio-options" id="resident-radio"
+              value="resident">
+            <label class="form-check-label" for="resident-radio">Resident</label>
+          </div>
+          <div class="form-check form-check-inline float-start">
+            <input class="form-check-input" type="radio" name="residence-radio-options" id="non-resident-radio"
+              value="nonresident">
+            <label class="form-check-label" for="non-resident-radio">Non-resident</label>
+          </div>
+        </div>
+        <div id="hostel-name-div" class="col-md-6">
+          <label for="hostel-name-input" class="form-label float-start fw-500">Hostel name</label>
+          <input type="text" class="form-control" id="hostel-name-input" placeholder="Enter the hostel name">
+        </div>
+        <div id="hostel-room-div" class="col-md-6">
+          <label for="room-number-input" class="form-label float-start fw-500">Room number</label>
+          <input type="text" class="form-control" id="room-number-input" placeholder="Enter the room number">
+        </div>
+        <div id="apartment-name-div" class="col-md-5">
+          <label for="apartment-name-input" class="form-label float-start fw-500">Apartment/hostel name:</label>
+          <input type="text" class="form-control" id="apartment-name-input" placeholder="apartment or hostel name">
+        </div>
+        <div id="location-desc-div" class="col-md-9">
+          <label for="describe-location-textarea" class="form-label float-start fw-500">Describe the location:</label>
+          <textarea class="form-control" id="describe-location-textarea" rows="2"
+            placeholder="Describe the location of your residence"></textarea>
+        </div>
+        <div id="mobile-number-div" class="col-md-4">
+          <label for="mobile-number-input" class="form-label float-start fw-500">Mobile No:</label>
+          <input type="number" class="form-control" id="mobile-number-input" placeholder="Mobile number">
+        </div>
+        <div class="col-md-12 mt-5">
+          <h6 class="float-start underline">PARTICULARS OF LEAVE-OUT</h6>
+        </div>
+        <div id="reasons-div" class="col-md-9">
+          <label for="reasons-textarea" class="form-label float-start fw-500">Reasons for being away and destination
+            (<em>please give physical address</em>):</label>
+          <textarea class="form-control" id="reasons-textarea" rows="3"></textarea>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label float-start fw-500">Next of kin details:</label>
+        </div>
+        <div class="row mb-3">
+          <label for="kin-name-input" class="col-sm-1 col-form-label">Name:</label>
+          <div class="col-sm-5">
+            <input type="email" class="form-control" id="kin-name-input">
+          </div>
+          <label for="kin-relship-input" class="col-sm-2 col-form-label">Relationship:</label>
+          <div class="col-sm-3">
+            <input type="email" class="form-control" id="kin-relship-input">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label for="kin-contact-input" class="col-sm-1 col-form-label mt-2">Contact:</label>
+          <div class="col-sm-5 mt-2">
+            <input type="email" class="form-control" id="kin-contact-input">
+          </div>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label float-start fw-500">Duration of leave-out:</label>
+        </div>
+        <div class="row mb-3">
+          <label for="leave-days-input" class="col-sm-2 col-form-label mt-2">Select the dates:</label>
+          <div class="col-sm-3 mt-2">
+            <input id="leave-days-input" type="text" class="form-control" name="daterange" value="" />
+          </div>
+          <div class="col-sm-3 mt-2">
+            <label class="col-form-label mt-2 me-3 pt-0">Number of day(s):</label>
+            <span id="num-days" class="fw-bolder font-monospace fst-italic">0</span>
+          </div>
+        </div>
+        <div class="col-md-12 mt-4">
+          <label class="form-label float-start fw-500">Select units and other academic obligations to be affected during
+            your absence</label>
+        </div>
+        <div class="row mb- mt-3">
+          <div class="col">
+            <table class="table table-bordered border-primary">
+              <thead>
+                <tr>
+                  <th>S/N</th>
+                  <th>Unit code and name</th>
+                  <th>Please indicate what will be </th>
+                  <th>Handle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>1</th>
+                  <td>Mark</td>
+                  <td>Otto</td>
+                  <td>@mdo</td>
+                </tr>
+                <tr>
+                  <th>2</th>
+                  <td>Jacob</td>
+                  <td>Thornton</td>
+                  <td>@fat</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Sign in</button>
+        </div>
+      </form>
+    </div>
   </div>
 
+  <script src="./scripts/jquery-3.6.0.min.js"></script>
+  <script src="./scripts/moment.min.js"></script>
+  <script src="./scripts/daterangepicker.js"></script>
   <script src="./scripts/index.js"></script>
 </body>
 
