@@ -74,8 +74,18 @@ label, .fs-9rem {
   font-size: .9rem !important;
 }
 
+.mt-28 {
+  margin-top: 28rem!important;
+}
+
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
     font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mt-28 {
+    margin-top: 52rem!important;
   }
 }
