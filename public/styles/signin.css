@@ -74,8 +74,18 @@ label, .fs-9rem {
   font-size: .9rem !important;
 }
 
-.mt-28 {
-  margin-top: 28rem!important;
+.mt-14 {
+  margin-top: 12rem!important;
+}
+
+.form-select.p-1 {
+  border-color: #ced4da;
+  border-radius: .25rem;
+}
+
+.form-select.p-1:hover {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
 }
 
 @media (min-width: 768px) {
@@ -85,7 +95,7 @@ label, .fs-9rem {
 }
 
 @media (max-width: 768px) {
-  .mt-28 {
-    margin-top: 52rem!important;
+  .mt-14 {
+    margin-top: 32rem!important;
   }
 }

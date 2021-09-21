@@ -84,12 +84,8 @@ function alertNotification(state, msg = null, errmsg = null) {
 }
 
 // disabling form submissions if there are invalid fields
-async function checkForm(form, event, desc, data = null) {
-    let f = document.querySelector('#leave-form');
-    console.log(leaveForm);
-    console.log(f.checkValidity());
-
-    if (!form.checkValidity()) {
+async function checkForm(form, event, desc) {
+    if (form.checkValidity() === false) {
         // invalid form
         event.preventDefault();
         event.stopPropagation();
