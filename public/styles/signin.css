@@ -88,6 +88,11 @@ label, .fs-9rem {
   box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
 }
 
+.trash {
+  width: 15px;
+  height: 15px;
+}
+
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
     font-size: 3.5rem;
