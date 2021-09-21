@@ -36,23 +36,23 @@ let residence;
 let data = [
     {
         id: 0,
-        text: 'enhancement'
+        text: 'Introduction to Programming'
     },
     {
         id: 1,
-        text: 'bug'
+        text: 'Principles of Statistics'
     },
     {
         id: 2,
-        text: 'duplicate'
+        text: ' Linear Algebra'
     },
     {
         id: 3,
-        text: 'invalid'
+        text: 'Probability and Statistics'
     },
     {
         id: 4,
-        text: 'wontfix'
+        text: 'Software Engineering II'
     }
 ];
 
@@ -128,21 +128,18 @@ function addAcademicObligation() {
     let mailId = create_UUID();
 
     let formRowDiv = document.createElement('div');
-    formRowDiv.setAttribute('class', 'form-row mb-3');
+    formRowDiv.setAttribute('class', 'form-row mb-3 float-left');
 
     let formRowDivCol1 = document.createElement('div');
-    formRowDivCol1.setAttribute('class', 'col-11');
-
-    let formRowDivCol2 = document.createElement('div');
-    formRowDivCol2.setAttribute('class', 'col-1');
+    formRowDivCol1.setAttribute('class', 'col-md-12 px-3 pb-3 shadow');
 
     let formRowDivCol1Input = document.createElement('select');
     formRowDivCol1Input.setAttribute('id', mailId + 'select');
-    formRowDivCol1Input.setAttribute('class', 'form-select p-1 select-affected-units');
+    formRowDivCol1Input.setAttribute('class', 'form-select p-1 select-affected-units w-100');
     formRowDivCol1Input.setAttribute('placeholder', 'Choose');
 
     let formRowDivCol1Div = document.createElement('div');
-    formRowDivCol1Div.setAttribute('class', 'invalid-feedback w-50');
+    formRowDivCol1Div.setAttribute('class', 'invalid-feedback');
     formRowDivCol1Div.innerHTML = 'Please provide a unit';
 
     let formRowDivCol2FormCheck_Lecture = document.createElement('div');
@@ -157,7 +154,7 @@ function addAcademicObligation() {
     let formRowDivCol2Checkbox_Lecture_Input = document.createElement('input');
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('id', 'lecture-checkbox');
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('type', 'checkbox');
-    formRowDivCol2Checkbox_Lecture_Input.setAttribute('class', 'form-check-input');
+    formRowDivCol2Checkbox_Lecture_Input.setAttribute('class', 'form-check-input ml-4');
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('value', 'lecture');
 
     let formRowDivCol2Checkbox_LectureLabel = document.createElement('label');
@@ -185,7 +182,7 @@ function addAcademicObligation() {
     let formRowDivCol2Checkbox_ExamLabel = document.createElement('label');
     formRowDivCol2Checkbox_ExamLabel.setAttribute('for', 'exam-checkbox');
     formRowDivCol2Checkbox_ExamLabel.setAttribute('class', 'form-check-label');
-    formRowDivCol2Checkbox_ExamLabel.innerHTML = 'EXAM';
+    formRowDivCol2Checkbox_ExamLabel.innerHTML = 'Exam';
 
     formRowDivCol2FormCheck_Lecture.appendChild(formRowDivCol2Checkbox_Lecture_Input);
     formRowDivCol2FormCheck_Lecture.appendChild(formRowDivCol2Checkbox_LectureLabel);
@@ -199,7 +196,7 @@ function addAcademicObligation() {
     //delete svg
     let deleteSVG = document.createElementNS(xmlns, 'svg');
     deleteSVG.setAttribute('viewBox', '0 0 16 16');
-    deleteSVG.setAttribute('class', 'bi trash del-email-field vertical-align cursor-pointer');
+    deleteSVG.setAttribute('class', 'bi trash del-email-field vertical-align cursor-pointer ml-5');
     deleteSVG.setAttribute('fill', 'currentColor');
 
     let path = document.createElementNS(xmlns, 'path');
@@ -216,10 +213,9 @@ function addAcademicObligation() {
     formRowDivCol1.appendChild(formRowDivCol2FormCheck_Lecture);
     formRowDivCol1.appendChild(formRowDivCol2FormCheck_CAT);
     formRowDivCol1.appendChild(formRowDivCol2FormCheck_Exam);
-    formRowDivCol2.appendChild(deleteSVG);
+    formRowDivCol1.appendChild(deleteSVG);
 
     formRowDiv.appendChild(formRowDivCol1);
-    formRowDiv.appendChild(formRowDivCol2);
 
     obligationsDiv.appendChild(formRowDiv);
 
