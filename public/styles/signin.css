@@ -98,9 +98,9 @@ label, .fs-9rem {
   height: 20px;
 }
 
-.bi-plus-lg:hover {
+.rotate {
   -webkit-animation: rotate-in-center 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-	 animation: rotate-in-center 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+	animation: rotate-in-center 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
 
 .pointer {
@@ -109,6 +109,10 @@ label, .fs-9rem {
 
 .w-12 {
    width: 12%!important;
+}
+
+.events-none > * {
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {
@@ -120,5 +124,9 @@ label, .fs-9rem {
 @media (max-width: 768px) {
   .mt-14 {
     margin-top: 32rem!important;
+  }
+
+  .w-12 {
+    width: 30%!important;
   }
 }

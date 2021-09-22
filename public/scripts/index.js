@@ -27,6 +27,10 @@ let residenceRadioInput = document.querySelectorAll('input[name="residence-radio
 let alert = document.getElementById('alert');
 let alertTxt = document.getElementById('alert-text');
 
+let addUnitBtn = document.getElementById('addunit-btn');
+let plusSVG = document.getElementById('plus-svg');
+let addTxt = document.getElementById('addtxt');
+
 let submitLeaveFormBtn = document.getElementById('submit-leave-form-btn');
 
 let xmlns = "http://www.w3.org/2000/svg";
@@ -74,8 +78,6 @@ $(document).ready(function () {
         // TODO: max days - 5 - https://select2.org/data-sources/ajax
         NumOfDys.innerHTML = numOfDays;
     });
-
-    addAcademicObligation();
 });
 
 function alertNotification(state, msg = null, errmsg = null) {
@@ -125,7 +127,7 @@ function create_UUID() {
 }
 
 function addAcademicObligation() {
-    let mailId = create_UUID();
+    let unitId = create_UUID();
 
     let formRowDiv = document.createElement('div');
     formRowDiv.setAttribute('class', 'form-row mb-3 float-left');
@@ -134,7 +136,7 @@ function addAcademicObligation() {
     formRowDivCol1.setAttribute('class', 'col-md-12 px-3 pb-3 shadow');
 
     let formRowDivCol1Input = document.createElement('select');
-    formRowDivCol1Input.setAttribute('id', mailId + 'select');
+    formRowDivCol1Input.setAttribute('id', unitId + 'select');
     formRowDivCol1Input.setAttribute('class', 'form-select p-1 select-affected-units w-100');
     formRowDivCol1Input.setAttribute('placeholder', 'Choose');
 
@@ -196,7 +198,7 @@ function addAcademicObligation() {
     //delete svg
     let deleteSVG = document.createElementNS(xmlns, 'svg');
     deleteSVG.setAttribute('viewBox', '0 0 16 16');
-    deleteSVG.setAttribute('class', 'bi trash del-email-field vertical-align cursor-pointer ml-5');
+    deleteSVG.setAttribute('class', 'bi trash vertical-align cursor-pointer ml-5');
     deleteSVG.setAttribute('fill', 'currentColor');
 
     let path = document.createElementNS(xmlns, 'path');
@@ -332,9 +334,31 @@ async function checkForm(form, event, desc) {
 }
 
 submitLeaveFormBtn.addEventListener('click', ev => {
-    // ev.preventDefault();
-
     checkForm(leaveForm, ev, 'leave-form');
+});
+
+// add animations to the add academic obligations button on mouse hover
+addUnitBtn.addEventListener('mouseover', () => {
+    plusSVG.classList.add('rotate');
+
+    addTxt.classList.add('slide-in-left');
+    // addTxt.classList.add('slide-in-left-reverse');
+    addTxt.classList.add('d-inline-block');
+    addTxt.classList.remove('d-none');
+});
+
+// add animations to the add academic obligations button on mouse hover exit
+addUnitBtn.addEventListener('mouseout', () => {
+    plusSVG.classList.remove('rotate');
+
+    addTxt.classList.remove('slide-in-left');
+    // addTxt.classList.add('slide-in-left-reverse');
+    addTxt.classList.add('d-none');
+    addTxt.classList.remove('d-inline-block');
+});
+
+addUnitBtn.addEventListener('click', () => {
+    addAcademicObligation();
 });
 
 residenceRadioInput.forEach(eachResidenceRadioInput => {
