@@ -13,6 +13,17 @@
 	animation: slide-in-left 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) reverse both;
 }
 
+.scan {
+   background-color: rgba(243, 245, 245, 0.986);
+   background-image: linear-gradient(to right,rgba(238, 238, 238, 0.9) 25%,rgb(228, 243, 247) 50%,rgba(245, 239, 239, 0.9) 75%);
+   color: white;
+   height: 100%;
+   width: 20%;
+
+  -webkit-animation: 4s linear 0s infinite alternate move_eye;
+  animation: 4s linear 0s infinite alternate move_eye;
+}
+
 /**
  * ----------------------------------------
  * animation rotate-in-center
@@ -71,4 +82,11 @@
             transform: translateX(0);
     opacity: 1;
   }
+}
+
+@-webkit-keyframes move_eye { 
+  from { margin-left: -20%; } to { margin-left: 100%; }  
+}
+@keyframes move_eye { 
+  from { margin-left: -20%; } to { margin-left: 100%; }  
 }

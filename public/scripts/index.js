@@ -30,6 +30,7 @@ let alertTxt = document.getElementById('alert-text');
 let addUnitBtn = document.getElementById('addunit-btn');
 let plusSVG = document.getElementById('plus-svg');
 let addTxt = document.getElementById('addtxt');
+let schoolSelectInput = document.getElementById('input-sch-select');
 
 let submitLeaveFormBtn = document.getElementById('submit-leave-form-btn');
 
@@ -60,10 +61,40 @@ let data = [
     }
 ];
 
+// all departments object
+let allDepts = {
+    dept_agri: [
+        { id: 'arm', text: 'Agricultural Resources & Management' },
+        { id: 'lwm', text: 'Land & Water Management' },
+        { id: 'aee', text: 'Agricultural Economics & Extension' }
+    ],
+    dept_pas: [
+        { id: 'mcit', text: 'Mathematics, Computing & IT' },
+        { id: 'ps', text: 'Physical Sciences' },
+        { id: 'bis', text: 'Biological Sciences' }
+    ],
+    dept_bus: [
+        { id: 'bse', text: 'Business & Economics' }
+    ],
+    dept_nur: [
+        { id: 'nur', text: 'Nursing' }
+    ],
+    dept_ess: [
+        { id: 'edu', text: 'Education' },
+        { id: 'hum', text: 'Humanities' }
+    ],
+    dept_law: [
+        { id: 'law', text: 'Law' }
+    ],
+    dept_default: [
+        { id: 'def', text: 'Choose your school' }
+    ]
+}
+
 $(document).ready(function () {
-    // $('.select-affected-units').select2({
-    //     data: data
-    // });
+    $('#input-dept-select').select2({
+        data: allDepts.dept_default
+    });
 
     $('input[name="daterange"]').daterangepicker({
         opens: 'left',
@@ -133,7 +164,7 @@ function addAcademicObligation() {
     formRowDiv.setAttribute('class', 'form-row mb-3 float-left');
 
     let formRowDivCol1 = document.createElement('div');
-    formRowDivCol1.setAttribute('class', 'col-md-12 px-3 pb-3 shadow');
+    formRowDivCol1.setAttribute('class', 'col-md-12 px-3 py-3 shadow rounded');
 
     let formRowDivCol1Input = document.createElement('select');
     formRowDivCol1Input.setAttribute('id', unitId + 'select');
@@ -169,7 +200,7 @@ function addAcademicObligation() {
     formRowDivCol2Checkbox_CAT_Input.setAttribute('type', 'checkbox');
     formRowDivCol2Checkbox_CAT_Input.setAttribute('class', 'form-check-input');
     formRowDivCol2Checkbox_CAT_Input.setAttribute('value', 'cat');
-    
+
     let formRowDivCol2Checkbox_CATLabel = document.createElement('label');
     formRowDivCol2Checkbox_CATLabel.setAttribute('for', 'cat-checkbox');
     formRowDivCol2Checkbox_CATLabel.setAttribute('class', 'form-check-label');
@@ -180,7 +211,7 @@ function addAcademicObligation() {
     formRowDivCol2Checkbox_Exam_Input.setAttribute('type', 'checkbox');
     formRowDivCol2Checkbox_Exam_Input.setAttribute('class', 'form-check-input');
     formRowDivCol2Checkbox_Exam_Input.setAttribute('value', 'exam');
-    
+
     let formRowDivCol2Checkbox_ExamLabel = document.createElement('label');
     formRowDivCol2Checkbox_ExamLabel.setAttribute('for', 'exam-checkbox');
     formRowDivCol2Checkbox_ExamLabel.setAttribute('class', 'form-check-label');
@@ -198,7 +229,7 @@ function addAcademicObligation() {
     //delete svg
     let deleteSVG = document.createElementNS(xmlns, 'svg');
     deleteSVG.setAttribute('viewBox', '0 0 16 16');
-    deleteSVG.setAttribute('class', 'bi trash vertical-align cursor-pointer ml-5');
+    deleteSVG.setAttribute('class', 'bi trash vertical-align pointer ml-5');
     deleteSVG.setAttribute('fill', 'currentColor');
 
     let path = document.createElementNS(xmlns, 'path');
@@ -359,6 +390,48 @@ addUnitBtn.addEventListener('mouseout', () => {
 
 addUnitBtn.addEventListener('click', () => {
     addAcademicObligation();
+});
+
+schoolSelectInput.addEventListener('change', ev => {
+    console.log(ev.target.value);
+
+    switch (ev.target.value) {
+        case 'Agriculture':
+            $('#input-dept-select').select2({
+                data: allDepts.dept_agri
+            });
+            break;
+        case 'Pure & Applied Sciences':
+            $('#input-dept-select').select2({
+                data: allDepts.dept_pas
+            });
+            break;
+        case 'Business & Economics':
+            $('#input-dept-select').select2({
+                data: allDepts.dept_bus
+            });
+            break;
+        case 'Nursing':
+            $('#input-dept-select').select2({
+                data: allDepts.dept_nur
+            });
+            break;
+        case 'Education & Social Sciences':
+            $('#input-dept-select').select2({
+                data: allDepts.dept_ess
+            });
+            break;
+        case 'Law':
+            $('#input-dept-select').select2({
+                data: allDepts.dept_law
+            });
+            break;
+        default:
+            $('#input-dept-select').select2({
+                data: allDepts.dept_default
+            });
+            break;
+    }
 });
 
 residenceRadioInput.forEach(eachResidenceRadioInput => {
