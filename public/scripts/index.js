@@ -395,6 +395,12 @@ addUnitBtn.addEventListener('click', () => {
 schoolSelectInput.addEventListener('change', ev => {
     console.log(ev.target.value);
 
+    let inputDeptSelect = document.getElementById('input-dept-select');
+
+    while (inputDeptSelect.firstChild) {
+        inputDeptSelect.removeChild(inputDeptSelect.firstChild);
+    }
+
     switch (ev.target.value) {
         case 'Agriculture':
             $('#input-dept-select').select2({
