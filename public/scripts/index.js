@@ -38,27 +38,12 @@ let xmlns = "http://www.w3.org/2000/svg";
 
 let residence;
 
-let data = [
-    {
-        id: 0,
-        text: 'Introduction to Programming'
-    },
-    {
-        id: 1,
-        text: 'Principles of Statistics'
-    },
-    {
-        id: 2,
-        text: ' Linear Algebra'
-    },
-    {
-        id: 3,
-        text: 'Probability and Statistics'
-    },
-    {
-        id: 4,
-        text: 'Software Engineering II'
-    }
+let unitsData = [
+    { id: 'pro954', text: 'Introduction to Programming' },
+    { id: 'sta234', text: 'Principles of Statistics' },
+    { id: 'alg064', text: ' Linear Algebra' },
+    { id: 'sta586', text: 'Probability and Statistics' },
+    { id: 'swe295', text: 'Software Engineering II' }
 ];
 
 // all departments object
@@ -169,7 +154,7 @@ function addAcademicObligation() {
     let formRowDivCol1Input = document.createElement('select');
     formRowDivCol1Input.setAttribute('id', unitId + 'select');
     formRowDivCol1Input.setAttribute('class', 'form-select p-1 select-affected-units w-100');
-    formRowDivCol1Input.setAttribute('placeholder', 'Choose');
+    // formRowDivCol1Input.setAttribute('style', 'width: 100%');
 
     let formRowDivCol1Div = document.createElement('div');
     formRowDivCol1Div.setAttribute('class', 'invalid-feedback');
@@ -262,7 +247,7 @@ function addAcademicObligation() {
     }
 
     $('.select-affected-units').select2({
-        data: data
+        data: unitsData
     });
 }
 
