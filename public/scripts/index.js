@@ -1,3 +1,22 @@
+let mainDashboardDiv = document.getElementById('main-dashboard-div');
+let loginDiv = document.getElementById('login-div');
+
+let titleDiv = document.getElementById('title-div');
+let applyForLeaveBtn = document.getElementById('apply-for-leave-btn');
+
+
+let dashboardDiv = document.getElementById('dashboard-div');
+let leaveDiv = document.getElementById('leave-div');
+let leaveToApproveDiv = document.getElementById('leave-to-approve-div');
+let reportsDiv = document.getElementById('reports-div');
+let settingsDiv = document.getElementById('settings-div');
+
+let dashboardBtn = document.getElementById('dashboard-btn');
+let leaveBtn = document.getElementById('leave-btn');
+let leaveToApproveBtn = document.getElementById('leave-to-approve-btn');
+let reportsBtn = document.getElementById('reports-btn');
+let settingsBtn = document.getElementById('settings-btn');
+
 let leaveDys = document.getElementById('leave-days-input');
 let NumOfDys = document.getElementById('num-days');
 
@@ -129,6 +148,17 @@ function alertNotification(state, msg = null, errmsg = null) {
         alert.classList.remove('d-flex');
         alert.classList.add('d-none');
     }, 4000);
+}
+
+function activateSidebarBtn(ev) {
+    let allAnchorEl = document.querySelectorAll('.nav-link');
+
+    allAnchorEl.forEach(eachNavLinkEl => {
+        eachNavLinkEl.classList.remove('active');
+    });
+
+    let anchorEl = document.querySelector(`#${ev.target.id} > *`);
+    anchorEl.classList.add('active');
 }
 
 // create a random identifier
@@ -356,6 +386,7 @@ submitLeaveFormBtn.addEventListener('click', ev => {
 // add animations to the add academic obligations button on mouse hover
 addUnitBtn.addEventListener('mouseover', () => {
     plusSVG.classList.add('rotate');
+    plusSVG.classList.remove('ml-3');
 
     addTxt.classList.add('slide-in-left');
     // addTxt.classList.add('slide-in-left-reverse');
@@ -366,6 +397,7 @@ addUnitBtn.addEventListener('mouseover', () => {
 // add animations to the add academic obligations button on mouse hover exit
 addUnitBtn.addEventListener('mouseout', () => {
     plusSVG.classList.remove('rotate');
+    plusSVG.classList.add('ml-3');
 
     addTxt.classList.remove('slide-in-left');
     // addTxt.classList.add('slide-in-left-reverse');
@@ -467,4 +499,56 @@ residenceRadioInput.forEach(eachResidenceRadioInput => {
             locationDescDiv.classList.remove('d-block');
         }
     });
+});
+
+function displayFunc(desc) {
+    switch (desc) {
+        case 'dashboard':
+            titleDiv.innerHTML = 'Dashboard';
+            break;
+        case 'leave':
+            titleDiv.innerHTML = 'Leave';
+            break;
+        case 'leave-to-approve':
+            titleDiv.innerHTML = 'Leaves to approve';
+            break;
+        case 'reports':
+            titleDiv.innerHTML = 'Reports';
+            break;
+        case 'settings':
+            titleDiv.innerHTML = 'Settings';
+            break;
+        default:
+            titleDiv.innerHTML = 'Dashboard';
+            break;
+    }
+}
+
+dashboardBtn.addEventListener('click', ev => {
+    activateSidebarBtn(ev);
+    displayFunc('dashboard');
+});
+
+leaveBtn.addEventListener('click', ev => {
+    activateSidebarBtn(ev);
+    displayFunc('leave');
+});
+
+leaveToApproveBtn.addEventListener('click', ev => {
+    activateSidebarBtn(ev);
+    displayFunc('leave-to-approve');
+});
+
+reportsBtn.addEventListener('click', ev => {
+    activateSidebarBtn(ev);
+    displayFunc('reports');
+});
+
+settingsBtn.addEventListener('click', ev => {
+    activateSidebarBtn(ev);
+    displayFunc('settings');
+});
+
+applyForLeaveBtn.addEventListener('click', () => {
+    $('#leave-form-modal').modal('show');
 });
