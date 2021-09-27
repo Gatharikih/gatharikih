@@ -4,7 +4,6 @@ let loginDiv = document.getElementById('login-div');
 let titleDiv = document.getElementById('title-div');
 let applyForLeaveBtn = document.getElementById('apply-for-leave-btn');
 
-
 let dashboardDiv = document.getElementById('dashboard-div');
 let leaveDiv = document.getElementById('leave-div');
 let leaveToApproveDiv = document.getElementById('leave-to-approve-div');
@@ -115,6 +114,32 @@ $(document).ready(function () {
     });
 });
 
+function timeOut(contr) {
+    // 15s timeout
+    let timeoutPromise = new Promise((resolve, reject) => {
+        let timeout = setTimeout(() => {
+            clearTimeout(timeout);
+            contr.abort();
+            resolve(555);
+        }, 15000);
+    });
+
+    return timeoutPromise;
+}
+
+function fetchData(url, options) {
+    let data = fetch(url, options);
+
+    return data;
+}
+
+function race(fetchPromise, timeoutPromise) {
+    let racePromise = Promise.race([fetchPromise, timeoutPromise]);
+
+    return racePromise;
+}
+
+// alert function
 function alertNotification(state, msg = null, errmsg = null) {
     alert.classList.add('d-flex');
     alert.classList.remove('d-none');
@@ -150,6 +175,7 @@ function alertNotification(state, msg = null, errmsg = null) {
     }, 4000);
 }
 
+// change color of active and inactive sidebar buttons
 function activateSidebarBtn(ev) {
     let allAnchorEl = document.querySelectorAll('.nav-link');
 
@@ -172,17 +198,19 @@ function create_UUID() {
     return uuid;
 }
 
+// create academic obligations UI
 function addAcademicObligation() {
     let unitId = create_UUID();
 
     let formRowDiv = document.createElement('div');
+    formRowDiv.setAttribute('id', unitId + '_form-row');
     formRowDiv.setAttribute('class', 'form-row mb-3 float-left');
 
     let formRowDivCol1 = document.createElement('div');
     formRowDivCol1.setAttribute('class', 'col-md-12 px-3 py-3 shadow rounded');
 
     let formRowDivCol1Input = document.createElement('select');
-    formRowDivCol1Input.setAttribute('id', unitId + 'select');
+    formRowDivCol1Input.setAttribute('id', unitId + '_select');
     formRowDivCol1Input.setAttribute('class', 'form-select p-1 select-affected-units w-100');
     // formRowDivCol1Input.setAttribute('style', 'width: 100%');
 
@@ -200,35 +228,35 @@ function addAcademicObligation() {
     formRowDivCol2FormCheck_Exam.setAttribute('class', 'form-check form-check-inline');
 
     let formRowDivCol2Checkbox_Lecture_Input = document.createElement('input');
-    formRowDivCol2Checkbox_Lecture_Input.setAttribute('id', 'lecture-checkbox');
+    formRowDivCol2Checkbox_Lecture_Input.setAttribute('id', unitId + '_lecturer-checkbox');
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('type', 'checkbox');
-    formRowDivCol2Checkbox_Lecture_Input.setAttribute('class', 'form-check-input ml-4');
+    formRowDivCol2Checkbox_Lecture_Input.setAttribute('class', 'form-check-input ml-4 lecture-checkbox');
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('value', 'lecture');
 
     let formRowDivCol2Checkbox_LectureLabel = document.createElement('label');
-    formRowDivCol2Checkbox_LectureLabel.setAttribute('for', 'lecture-checkbox');
+    formRowDivCol2Checkbox_LectureLabel.setAttribute('for', unitId + '_lecturer-checkbox');
     formRowDivCol2Checkbox_LectureLabel.setAttribute('class', 'form-check-label');
     formRowDivCol2Checkbox_LectureLabel.innerHTML = 'Lecture';
 
     let formRowDivCol2Checkbox_CAT_Input = document.createElement('input');
-    formRowDivCol2Checkbox_CAT_Input.setAttribute('id', 'cat-checkbox');
+    formRowDivCol2Checkbox_CAT_Input.setAttribute('id', unitId + '_cat-checkbox');
     formRowDivCol2Checkbox_CAT_Input.setAttribute('type', 'checkbox');
     formRowDivCol2Checkbox_CAT_Input.setAttribute('class', 'form-check-input');
     formRowDivCol2Checkbox_CAT_Input.setAttribute('value', 'cat');
 
     let formRowDivCol2Checkbox_CATLabel = document.createElement('label');
-    formRowDivCol2Checkbox_CATLabel.setAttribute('for', 'cat-checkbox');
+    formRowDivCol2Checkbox_CATLabel.setAttribute('for', unitId + '_cat-checkbox');
     formRowDivCol2Checkbox_CATLabel.setAttribute('class', 'form-check-label');
     formRowDivCol2Checkbox_CATLabel.innerHTML = 'CAT';
 
     let formRowDivCol2Checkbox_Exam_Input = document.createElement('input');
-    formRowDivCol2Checkbox_Exam_Input.setAttribute('id', 'exam-checkbox');
+    formRowDivCol2Checkbox_Exam_Input.setAttribute('id', unitId + '_exam-checkbox');
     formRowDivCol2Checkbox_Exam_Input.setAttribute('type', 'checkbox');
     formRowDivCol2Checkbox_Exam_Input.setAttribute('class', 'form-check-input');
     formRowDivCol2Checkbox_Exam_Input.setAttribute('value', 'exam');
 
     let formRowDivCol2Checkbox_ExamLabel = document.createElement('label');
-    formRowDivCol2Checkbox_ExamLabel.setAttribute('for', 'exam-checkbox');
+    formRowDivCol2Checkbox_ExamLabel.setAttribute('for', unitId + '_exam-checkbox');
     formRowDivCol2Checkbox_ExamLabel.setAttribute('class', 'form-check-label');
     formRowDivCol2Checkbox_ExamLabel.innerHTML = 'Exam';
 
@@ -278,6 +306,49 @@ function addAcademicObligation() {
 
     $('.select-affected-units').select2({
         data: unitsData
+    });
+}
+
+// display corresponding div respective to the sidebar button clicked
+function displayFunc(desc) {
+    switch (desc) {
+        case 'dashboard':
+            titleDiv.innerHTML = 'Dashboard';
+            break;
+        case 'leave':
+            titleDiv.innerHTML = 'Leave';
+            break;
+        case 'leave-to-approve':
+            titleDiv.innerHTML = 'Leaves to approve';
+            break;
+        case 'reports':
+            titleDiv.innerHTML = 'Reports';
+            break;
+        case 'settings':
+            titleDiv.innerHTML = 'Settings';
+            break;
+        default:
+            titleDiv.innerHTML = 'Dashboard';
+            break;
+    }
+}
+
+function submitLeaveData() {
+    let obligationsDiv_children_nodes = document.querySelectorAll('#obligations-div > *');
+
+    let select = document.querySelectorAll('.form-row .select-affected-units');
+
+    obligationsDiv_children_nodes.forEach(eachObligationChildNode => {
+        let eachObligationChildNodeId = eachObligationChildNode.id;
+
+        let id = eachObligationChildNodeId.split('_')[0];
+
+        let selectEl = document.getElementById(id + '_select');
+        let lecturerCheckbox = document.getElementById(id + '_lecturer-checkbox');
+        let catCheckbox = document.getElementById(id + '_cat-checkbox');
+        let examCheckbox = document.getElementById(id + '_exam-checkbox');
+
+        
     });
 }
 
@@ -355,7 +426,9 @@ async function checkForm(form, event, desc) {
                     kinRelationInput.setCustomValidity('');
                     kinContactInput.setCustomValidity('');
 
-                    // $('#loading-modal').modal('show');
+                    $('#loading-modal').modal('show');
+
+                    submitLeaveData();
                 }
 
                 studentNameInput.reportValidity();
@@ -500,29 +573,6 @@ residenceRadioInput.forEach(eachResidenceRadioInput => {
         }
     });
 });
-
-function displayFunc(desc) {
-    switch (desc) {
-        case 'dashboard':
-            titleDiv.innerHTML = 'Dashboard';
-            break;
-        case 'leave':
-            titleDiv.innerHTML = 'Leave';
-            break;
-        case 'leave-to-approve':
-            titleDiv.innerHTML = 'Leaves to approve';
-            break;
-        case 'reports':
-            titleDiv.innerHTML = 'Reports';
-            break;
-        case 'settings':
-            titleDiv.innerHTML = 'Settings';
-            break;
-        default:
-            titleDiv.innerHTML = 'Dashboard';
-            break;
-    }
-}
 
 dashboardBtn.addEventListener('click', ev => {
     activateSidebarBtn(ev);

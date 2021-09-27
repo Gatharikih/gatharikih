@@ -175,6 +175,26 @@ label, .fs-9rem {
    width: 12%!important;
 }
 
+#loading-modal {
+    background-color: rgba(73, 80, 87, 0.3) !important;
+}
+
+#loading-modal .modal-content {
+    background-color: transparent !important;
+}
+
+#loading-modal .modal-dialog {
+    margin-top: 15%;
+}
+
+#main-spinner {
+    margin-left: 45%;
+}
+
+#wait {
+    margin-left: 40%;
+}
+
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
     font-size: 3.5rem;
