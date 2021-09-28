@@ -48,13 +48,16 @@ let alertTxt = document.getElementById('alert-text');
 let addUnitBtn = document.getElementById('addunit-btn');
 let plusSVG = document.getElementById('plus-svg');
 let addTxt = document.getElementById('addtxt');
+
 let schoolSelectInput = document.getElementById('input-sch-select');
+let deptSelectInput = document.getElementById('input-dept-select');
 
 let submitLeaveFormBtn = document.getElementById('submit-leave-form-btn');
 
 let xmlns = "http://www.w3.org/2000/svg";
 
 let residence;
+let startDate, endDate;
 
 let unitsData = [
     { id: 'pro954', text: 'Introduction to Programming' },
@@ -103,8 +106,8 @@ $(document).ready(function () {
         opens: 'left',
         drops: 'up'
     }, function (start, end, label) {
-        let startDate = start.format('DD/MM/YYYY');
-        let endDate = end.format('DD/MM/YYYY');
+        startDate = start.format('DD/MM/YYYY');
+        endDate = end.format('DD/MM/YYYY');
 
         leaveDys.setAttribute('value', startDate + '-' + endDate);
 
@@ -333,22 +336,89 @@ function displayFunc(desc) {
     }
 }
 
-function submitLeaveData() {
-    let obligationsDiv_children_nodes = document.querySelectorAll('#obligations-div > *');
+function submitLeaveData(studentdata) {
+    let obligationsDiv_child_nodes = document.querySelectorAll('#obligations-div > *');
+    
+    let obligationsObjArray = [];
+    let leaveDataObj = {};
+    let controller = new AbortController();
 
-    let select = document.querySelectorAll('.form-row .select-affected-units');
+    obligationsDiv_child_nodes.forEach(eachObligationChildNode => {
+        let obligationObj = {};
 
-    obligationsDiv_children_nodes.forEach(eachObligationChildNode => {
         let eachObligationChildNodeId = eachObligationChildNode.id;
-
         let id = eachObligationChildNodeId.split('_')[0];
 
         let selectEl = document.getElementById(id + '_select');
-        let lecturerCheckbox = document.getElementById(id + '_lecturer-checkbox');
+        let lectureCheckbox = document.getElementById(id + '_lecturer-checkbox');
         let catCheckbox = document.getElementById(id + '_cat-checkbox');
         let examCheckbox = document.getElementById(id + '_exam-checkbox');
 
-        
+        if (selectEl != null) {
+            let unitSelected = document.querySelector('#' + id + '_select' + ' option:checked');
+            obligationObj.unitname = unitSelected.textContent;
+        }
+
+        // lecture
+        if (lectureCheckbox.checked && lectureCheckbox != null) {
+            obligationObj.lecture = 1;
+        } else {
+            obligationObj.lecture = 0;
+        }
+
+        // CAT
+        if (catCheckbox.checked && catCheckbox != null) {
+            obligationObj.cat = 1;
+        } else {
+            obligationObj.cat = 0;
+        }
+
+        // exam
+        if (examCheckbox.checked && examCheckbox != null) {
+            obligationObj.exam = 1;
+        } else {
+            obligationObj.exam = 0;
+        }
+
+        obligationsObjArray.push(obligationObj);
+    });
+
+    leaveDataObj.obligations_array = obligationsObjArray;
+    leaveDataObj.studentdata = studentdata;
+
+    let createLeavePromise = fetchData('https://odl.embuni.ac.ke:3800/contract/all', {
+        method: 'POST',
+        headers: {
+            // 'Authorization': 'Bearer ' + localStorage.getItem('x_Tkn'),
+            'Content-Type': 'application/json'
+        },
+        signal: controller.signal,
+        body: JSON.stringify(leaveDataObj)
+    });
+
+    let timeoutPr = timeOut(controller);
+
+    race(createLeavePromise, timeoutPr).then(async result => {
+        let status = result.status;
+
+        if (status == 200 || status == 304) {
+            let leaveResult = await result.json();
+
+            console.log(leaveResult);            
+        } else if (status === 555) {
+            alertNotification('error', 'Timeout. Check your network connectivity.');
+            return;
+        } else if (status === 403 || status === 401) {
+            signOutFunc();
+        } else {
+            alertNotification('error', 'Something went wrong.');
+            return;
+        }
+    }).catch(error => {
+        //.log(error)
+        alertNotification('error', 'Request timeout');
+    }).finally(() => {
+        $('#loading-modal').modal('hide');
     });
 }
 
@@ -361,6 +431,9 @@ async function checkForm(form, event, desc) {
     } else {
         // valid form
         event.preventDefault();
+
+        let schoolSelected = document.querySelector('#input-sch-select option:checked');
+        let deptSelected = document.querySelector('#input-dept-select option:checked');
 
         switch (desc) {
             case 'leave-form':
@@ -412,10 +485,21 @@ async function checkForm(form, event, desc) {
                     kinContactInput.setCustomValidity('Provide contact of your next of kin');
 
                     event.stopPropagation();
+                } else if (schoolSelected.value == 'def') {
+                    schoolSelectInput.setCustomValidity('Select your school');
+
+                    event.stopPropagation();
+                } else if (deptSelected.value == 'def') {
+                    deptSelectInput.setCustomValidity('Select your department');
+
+                    event.stopPropagation();
                 } else {
                     studentNameInput.setCustomValidity('');
                     studentRegNumInput.setCustomValidity('');
                     studentMobileNumInput.setCustomValidity('');
+
+                    schoolSelectInput.setCustomValidity('');
+                    deptSelectInput.setCustomValidity('');
 
                     studentHostelInput.setCustomValidity('');
                     studentRoomNumInput.setCustomValidity('');
@@ -428,12 +512,30 @@ async function checkForm(form, event, desc) {
 
                     $('#loading-modal').modal('show');
 
-                    submitLeaveData();
+                    let studentObj = {};
+
+                    studentObj.fullname = studentNameInput.value.trim();
+                    studentObj.reg_no = studentRegNumInput.value.trim();
+                    studentObj.school = schoolSelected.textContent;
+                    studentObj.dept = deptSelected.textContent;
+                    studentObj.residence = residence;
+                    studentObj.mobile_no = studentMobileNumInput.value.trim();
+                    studentObj.reasons = reasonsInput.value.trim();
+                    studentObj.kin_name = kinNameInput.value.trim();
+                    studentObj.kin_relation = kinRelationInput.value.trim();
+                    studentObj.kin_contact = kinContactInput.value.trim();
+                    studentObj.start_date = startDate;
+                    studentObj.end_date = endDate;
+
+                    submitLeaveData(studentObj);
                 }
 
                 studentNameInput.reportValidity();
                 studentRegNumInput.reportValidity();
                 studentMobileNumInput.reportValidity();
+
+                schoolSelectInput.reportValidity();
+                deptSelectInput.reportValidity();
 
                 studentHostelInput.reportValidity();
                 studentRoomNumInput.reportValidity();
@@ -532,7 +634,7 @@ schoolSelectInput.addEventListener('change', ev => {
 
 residenceRadioInput.forEach(eachResidenceRadioInput => {
     eachResidenceRadioInput.addEventListener('change', ev => {
-        residence = ev.target.value;
+        residence = ev.target.value || ev.target.textContent;
 
         if (residence == 'resident') {
             hostelNameDiv.classList.add('d-block');
