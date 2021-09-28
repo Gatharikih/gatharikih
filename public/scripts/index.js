@@ -383,7 +383,7 @@ function submitLeaveData(studentdata, leavedata) {
         obligationsObjArray.push(obligationObj);
     });
 
-    leaveDataObj.obligations_array = obligationsObjArray;
+    leaveDataObj.obligations_array_data = obligationsObjArray;
     leaveDataObj.studentdata = studentdata;
     leaveDataObj.leavedata = leavedata;
 
@@ -439,62 +439,75 @@ async function checkForm(form, event, desc) {
         switch (desc) {
             case 'leave-form':
                 if (studentNameInput.value.trim() == "") {
+                    console.log('ok1');
                     studentNameInput.setCustomValidity('Provide your name');
 
                     event.stopPropagation();
                 } else if (studentRegNumInput.value.trim() == "") {
+                    console.log('ok2');
                     studentRegNumInput.setCustomValidity('Provide your admission number');
 
                     event.stopPropagation();
                 } else if (studentMobileNumInput.value.trim() == "") {
+                    console.log('ok3');
                     studentMobileNumInput.setCustomValidity('Provide your phone number');
 
                     event.stopPropagation();
-                } else if (residence == 'resident') {
-                    if (studentHostelInput.value.trim() == '') {
-                        studentHostelInput.setCustomValidity('Provide hostel name');
+                }
+                else if (residence == 'resident' && studentHostelInput.value.trim() == '') {
+                    console.log('ok5');
+                    studentHostelInput.setCustomValidity('Provide hostel name');
 
-                        event.stopPropagation();
-                    } else if (studentRoomNumInput.value.trim() == '') {
-                        studentRoomNumInput.setCustomValidity('Provide room number');
+                    event.stopPropagation(); 
+                } else if (residence == 'resident' && studentRoomNumInput.value.trim() == '') {
+                    console.log('ok7');
+                    studentRoomNumInput.setCustomValidity('Provide room number');
 
-                        event.stopPropagation();
-                    }
-                } else if (residence == 'nonresident') {
-                    if (apartmentNameInput.value.trim() == '') {
-                        apartmentNameInput.setCustomValidity('Provide apartment/hostel name');
+                    event.stopPropagation();
+                } else if (residence == 'nonresident' && apartmentNameInput.value.trim() == '') {
+                    console.log('ok8');
+                    apartmentNameInput.setCustomValidity('Provide apartment/hostel name');
 
-                        event.stopPropagation();
-                    } else if (describeLocationInput.value.trim() == '') {
-                        describeLocationInput.setCustomValidity('Describe the apartment/hostel location');
+                    event.stopPropagation();
+                } else if (residence == 'nonresident' && describeLocationInput.value.trim() == '') {
+                    console.log('ok9');
+                    describeLocationInput.setCustomValidity('Describe the apartment/hostel location');
 
-                        event.stopPropagation();
-                    }
-                } else if (reasonsInput.value.trim() == "") {
+                    event.stopPropagation();
+                }
+                else if (reasonsInput.value.trim() == "") {
+                    console.log('ok10');
                     reasonsInput.setCustomValidity('Give reason(s) for being away');
 
                     event.stopPropagation();
                 } else if (kinNameInput.value.trim() == "") {
+                    console.log('ok11');
                     kinNameInput.setCustomValidity('Provide name of your next of kin');
 
                     event.stopPropagation();
                 } else if (kinRelationInput.value.trim() == "") {
+                    console.log('ok12');
                     kinRelationInput.setCustomValidity('Specify relationship with your next of kin');
 
                     event.stopPropagation();
                 } else if (kinContactInput.value.trim() == "") {
+                    console.log('ok13');
                     kinContactInput.setCustomValidity('Provide contact of your next of kin');
 
                     event.stopPropagation();
                 } else if (schoolSelected.value == 'def') {
+                    console.log('ok14');
                     schoolSelectInput.setCustomValidity('Select your school');
 
                     event.stopPropagation();
                 } else if (deptSelected.value == 'def') {
+                    console.log('ok15');
                     deptSelectInput.setCustomValidity('Select your department');
 
                     event.stopPropagation();
                 } else {
+                    console.log('ok16');
+
                     studentNameInput.setCustomValidity('');
                     studentRegNumInput.setCustomValidity('');
                     studentMobileNumInput.setCustomValidity('');
@@ -505,6 +518,7 @@ async function checkForm(form, event, desc) {
                     studentHostelInput.setCustomValidity('');
                     studentRoomNumInput.setCustomValidity('');
                     apartmentNameInput.setCustomValidity('');
+                    describeLocationInput.setCustomValidity('');
 
                     reasonsInput.setCustomValidity('');
                     kinNameInput.setCustomValidity('');
@@ -543,6 +557,7 @@ async function checkForm(form, event, desc) {
                 studentHostelInput.reportValidity();
                 studentRoomNumInput.reportValidity();
                 apartmentNameInput.reportValidity();
+                describeLocationInput.reportValidity();
 
                 reasonsInput.reportValidity();
                 kinNameInput.reportValidity();
@@ -550,6 +565,7 @@ async function checkForm(form, event, desc) {
                 kinContactInput.reportValidity();
                 break;
             default:
+                console.log('default');
                 break;
         }
     }
@@ -651,6 +667,12 @@ residenceRadioInput.forEach(eachResidenceRadioInput => {
 
             locationDescDiv.classList.add('d-none');
             locationDescDiv.classList.remove('d-block');
+
+            studentHostelInput.setAttribute('required', '');
+            studentRoomNumInput.setAttribute('required', '');
+
+            apartmentNameInput.removeAttribute('required');
+            describeLocationInput.removeAttribute('required');
         } else if (residence == 'nonresident') {
             hostelNameDiv.classList.add('d-none');
             hostelNameDiv.classList.remove('d-block');
@@ -663,6 +685,12 @@ residenceRadioInput.forEach(eachResidenceRadioInput => {
 
             locationDescDiv.classList.add('d-block');
             locationDescDiv.classList.remove('d-none');
+
+            studentHostelInput.removeAttribute('required');
+            studentRoomNumInput.removeAttribute('required');
+
+            apartmentNameInput.setAttribute('required', '');
+            describeLocationInput.setAttribute('required', '');
         } else {
             hostelNameDiv.classList.add('d-none');
             hostelNameDiv.classList.remove('d-block');
@@ -675,6 +703,12 @@ residenceRadioInput.forEach(eachResidenceRadioInput => {
 
             locationDescDiv.classList.add('d-none');
             locationDescDiv.classList.remove('d-block');
+
+            studentHostelInput.setAttribute('required', '');
+            studentRoomNumInput.setAttribute('required', '');
+
+            apartmentNameInput.setAttribute('required', '');
+            describeLocationInput.setAttribute('required', '');
         }
     });
 });

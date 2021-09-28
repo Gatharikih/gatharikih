@@ -62,7 +62,7 @@
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
           <div class="sidebar-sticky pt-3">
             <ul class="nav flex-column">
-              <li id="dashboard-btn" class="nav-item events-none">
+              <li id="dashboard-btn" class="nav-item events-none pointer">
                 <a class="nav-link active" href="#">
                   <span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -76,7 +76,7 @@
                   Dashboard <span class="sr-only">(current)</span>
                 </a>
               </li>
-              <li id="leave-btn" class="nav-item events-none">
+              <li id="leave-btn" class="nav-item events-none pointer">
                 <a class="nav-link" href="#">
                   <span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -89,7 +89,7 @@
                   Leave
                 </a>
               </li>
-              <li id="leave-to-approve-btn" class="nav-item events-none">
+              <li id="leave-to-approve-btn" class="nav-item events-none pointer">
                 <a class="nav-link" href="#">
                   <span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -103,7 +103,7 @@
                   Leaves to approve
                 </a>
               </li>
-              <li id="reports-btn" class="nav-item events-none">
+              <li id="reports-btn" class="nav-item events-none pointer">
                 <a class="nav-link" href="#">
                   <span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -115,7 +115,7 @@
                   Reports
                 </a>
               </li>
-              <li id="settings-btn" class="nav-item events-none">
+              <li id="settings-btn" class="nav-item events-none pointer">
                 <a class="nav-link" href="#">
                   <span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -199,8 +199,8 @@
                         </div>
                       </div>
                       <div class="form-row">
-                        <div class="col-md-6 mt-4">
-                          <label for="input-sch" class="form-label float-left fw-500">School</label>
+                        <label for="input-sch" class="col-sm-2 col-form-label float-left fw-500 mt-4">School</label>
+                        <div class="col-md-8 mt-4">
                           <select id="input-sch-select" class="form-select p-1 shadow" required>
                             <option selected>Choose...</option>
                             <option>Agriculture</option>
@@ -214,10 +214,12 @@
                             Please select your school.
                           </div>
                         </div>
-                        <div class="col-md-6 mt-4">
-                          <label for="input-dept" class="form-label float-left fw-500">Department</label>
+                      </div>
+                      <div class="form-row">
+                        <label for="input-dept" class="col-sm-2 col-form-label float-left fw-500 mt-4">Department</label>
+                        <div class="col-md-8 mt-4">
                           <select id="input-dept-select" class="form-select p-2 shadow" style="width: 75%;" required>
-
+                        
                           </select>
                           <div class="invalid-feedback">
                             Please select your department.
@@ -236,9 +238,9 @@
                             <input class="form-check-input" type="radio" name="residence-radio-options"
                               id="non-resident-radio" value="nonresident" required>
                             <label class="form-check-label" for="non-resident-radio">Non-resident</label>
-                            <div class="invalid-feedback">
+                            <!-- <div class="invalid-feedback">
                               <p>Specify your residence status.</p>
-                            </div>
+                            </div> -->
                           </div>
                         </div>
                       </div>
@@ -343,7 +345,7 @@
                       </div>
                       <div class="form-row mb-3">
                         <label for="leave-days-input" class="col-sm-2 col-form-label mt-2">Select the dates:</label>
-                        <div class="col-sm-3 mt-2">
+                        <div class="col-sm-5 mt-2">
                           <input id="leave-days-input" type="text" class="form-control shadow" name="daterange" value=""
                             required>
                           <div class="invalid-feedback">
@@ -368,7 +370,7 @@
                       </div>
                       <div class="form-row">
                         <div class="col-12 mt-4 mb-2">
-                          <div id="addunit-btn" class="rounded-pill border w-12 py-1 pl-3 shadow pointer events-none">
+                          <div id="addunit-btn" class="rounded-pill border w-12 py-1 pl-3 shadow pointer events-none pointer">
                             <svg id="plus-svg" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                               class="bi bi-plus-lg svg-20 text-success pointer ml-3" viewBox="0 0 16 16">
                               <path

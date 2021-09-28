@@ -176,23 +176,24 @@ label, .fs-9rem {
 }
 
 #loading-modal {
-    background-color: rgba(73, 80, 87, 0.3) !important;
+  background-color: rgba(73, 80, 87, 0.3) !important;
+  z-index: 2000;
 }
 
 #loading-modal .modal-content {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 #loading-modal .modal-dialog {
-    margin-top: 15%;
+  margin-top: 15%;
 }
 
 #main-spinner {
-    margin-left: 45%;
+  margin-left: 45%;
 }
 
 #wait {
-    margin-left: 40%;
+  margin-left: 40%;
 }
 
 @media (min-width: 768px) {
