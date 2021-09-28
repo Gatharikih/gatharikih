@@ -336,7 +336,7 @@ function displayFunc(desc) {
     }
 }
 
-function submitLeaveData(studentdata) {
+function submitLeaveData(studentdata, leavedata) {
     let obligationsDiv_child_nodes = document.querySelectorAll('#obligations-div > *');
     
     let obligationsObjArray = [];
@@ -385,8 +385,9 @@ function submitLeaveData(studentdata) {
 
     leaveDataObj.obligations_array = obligationsObjArray;
     leaveDataObj.studentdata = studentdata;
+    leaveDataObj.leavedata = leavedata;
 
-    let createLeavePromise = fetchData('https://odl.embuni.ac.ke:3800/contract/all', {
+    let createLeavePromise = fetchData('https://odl.embuni.ac.ke:3800/create/leave', {
         method: 'POST',
         headers: {
             // 'Authorization': 'Bearer ' + localStorage.getItem('x_Tkn'),
@@ -513,6 +514,7 @@ async function checkForm(form, event, desc) {
                     $('#loading-modal').modal('show');
 
                     let studentObj = {};
+                    let leaveObj = {};
 
                     studentObj.fullname = studentNameInput.value.trim();
                     studentObj.reg_no = studentRegNumInput.value.trim();
@@ -524,10 +526,11 @@ async function checkForm(form, event, desc) {
                     studentObj.kin_name = kinNameInput.value.trim();
                     studentObj.kin_relation = kinRelationInput.value.trim();
                     studentObj.kin_contact = kinContactInput.value.trim();
-                    studentObj.start_date = startDate;
-                    studentObj.end_date = endDate;
 
-                    submitLeaveData(studentObj);
+                    leaveObj.start_date = startDate;
+                    leaveObj.end_date = endDate;
+
+                    submitLeaveData(studentObj, leaveObj);
                 }
 
                 studentNameInput.reportValidity();
