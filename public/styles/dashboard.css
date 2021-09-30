@@ -196,6 +196,14 @@ label, .fs-9rem {
   margin-left: 40%;
 }
 
+.top-0 {
+  top: 0;
+}
+
+#alert {
+  z-index: 2050;
+}
+
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
     font-size: 3.5rem;

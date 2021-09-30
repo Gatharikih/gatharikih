@@ -16,7 +16,7 @@ let leaveToApproveBtn = document.getElementById('leave-to-approve-btn');
 let reportsBtn = document.getElementById('reports-btn');
 let settingsBtn = document.getElementById('settings-btn');
 
-let leaveDys = document.getElementById('leave-days-input');
+let leaveDysInput = document.getElementById('leave-days-input');
 let NumOfDys = document.getElementById('num-days');
 
 let studentNameInput = document.getElementById('input-name');
@@ -109,7 +109,7 @@ $(document).ready(function () {
         startDate = start.format('DD/MM/YYYY');
         endDate = end.format('DD/MM/YYYY');
 
-        leaveDys.setAttribute('value', startDate + '-' + endDate);
+        leaveDysInput.setAttribute('value', startDate + '-' + endDate);
 
         let numOfDays = end.diff(start, 'days');
         // TODO: max days - 5 - https://select2.org/data-sources/ajax
@@ -338,7 +338,7 @@ function displayFunc(desc) {
 
 function submitLeaveData(studentdata, leavedata) {
     let obligationsDiv_child_nodes = document.querySelectorAll('#obligations-div > *');
-    
+
     let obligationsObjArray = [];
     let leaveDataObj = {};
     let controller = new AbortController();
@@ -387,6 +387,8 @@ function submitLeaveData(studentdata, leavedata) {
     leaveDataObj.studentdata = studentdata;
     leaveDataObj.leavedata = leavedata;
 
+    console.log(leaveDataObj);
+
     let createLeavePromise = fetchData('https://odl.embuni.ac.ke:3800/create/leave', {
         method: 'POST',
         headers: {
@@ -405,7 +407,7 @@ function submitLeaveData(studentdata, leavedata) {
         if (status == 200 || status == 304) {
             let leaveResult = await result.json();
 
-            console.log(leaveResult);            
+            console.log(leaveResult);
         } else if (status === 555) {
             alertNotification('error', 'Timeout. Check your network connectivity.');
             return;
@@ -416,7 +418,7 @@ function submitLeaveData(studentdata, leavedata) {
             return;
         }
     }).catch(error => {
-        //.log(error)
+        console.log(error)
         alertNotification('error', 'Request timeout');
     }).finally(() => {
         $('#loading-modal').modal('hide');
@@ -425,155 +427,161 @@ function submitLeaveData(studentdata, leavedata) {
 
 // disabling form submissions if there are invalid fields
 async function checkForm(form, event, desc) {
-    if (form.checkValidity() === false) {
-        // invalid form
-        event.preventDefault();
-        event.stopPropagation();
-    } else {
-        // valid form
-        event.preventDefault();
+    // valid form
+    event.preventDefault();
 
-        let schoolSelected = document.querySelector('#input-sch-select option:checked');
-        let deptSelected = document.querySelector('#input-dept-select option:checked');
+    let schoolSelected = document.querySelector('#input-sch-select option:checked');
+    let deptSelected = document.querySelector('#input-dept-select option:checked');
 
-        switch (desc) {
-            case 'leave-form':
-                if (studentNameInput.value.trim() == "") {
-                    console.log('ok1');
-                    studentNameInput.setCustomValidity('Provide your name');
+    switch (desc) {
+        case 'leave-form':
+            if (studentNameInput.value.trim() == "") {
+                console.log('ok1');
+                studentNameInput.setCustomValidity('Provide your name');
 
-                    event.stopPropagation();
-                } else if (studentRegNumInput.value.trim() == "") {
-                    console.log('ok2');
-                    studentRegNumInput.setCustomValidity('Provide your admission number');
+                event.stopPropagation();
+            } else if (studentRegNumInput.value.trim() == "") {
+                console.log('ok2');
+                studentRegNumInput.setCustomValidity('Provide your admission number');
 
-                    event.stopPropagation();
-                } else if (studentMobileNumInput.value.trim() == "") {
-                    console.log('ok3');
-                    studentMobileNumInput.setCustomValidity('Provide your phone number');
+                event.stopPropagation();
+            } else if (studentMobileNumInput.value.trim() == "") {
+                console.log('ok3');
+                studentMobileNumInput.setCustomValidity('Provide your phone number');
 
-                    event.stopPropagation();
-                }
-                else if (residence == 'resident' && studentHostelInput.value.trim() == '') {
-                    console.log('ok5');
-                    studentHostelInput.setCustomValidity('Provide hostel name');
+                event.stopPropagation();
+            }
+            else if (residence == 'resident' && studentHostelInput.value.trim() == '') {
+                console.log('ok5');
+                studentHostelInput.setCustomValidity('Provide hostel name');
 
-                    event.stopPropagation(); 
-                } else if (residence == 'resident' && studentRoomNumInput.value.trim() == '') {
-                    console.log('ok7');
-                    studentRoomNumInput.setCustomValidity('Provide room number');
+                event.stopPropagation();
+            } else if (residence == 'resident' && studentRoomNumInput.value.trim() == '') {
+                console.log('ok7');
+                studentRoomNumInput.setCustomValidity('Provide room number');
 
-                    event.stopPropagation();
-                } else if (residence == 'nonresident' && apartmentNameInput.value.trim() == '') {
-                    console.log('ok8');
-                    apartmentNameInput.setCustomValidity('Provide apartment/hostel name');
+                event.stopPropagation();
+            } else if (residence == 'nonresident' && apartmentNameInput.value.trim() == '') {
+                console.log('ok8');
+                apartmentNameInput.setCustomValidity('Provide apartment/hostel name');
 
-                    event.stopPropagation();
-                } else if (residence == 'nonresident' && describeLocationInput.value.trim() == '') {
-                    console.log('ok9');
-                    describeLocationInput.setCustomValidity('Describe the apartment/hostel location');
+                event.stopPropagation();
+            } else if (residence == 'nonresident' && describeLocationInput.value.trim() == '') {
+                console.log('ok9');
+                describeLocationInput.setCustomValidity('Describe the apartment/hostel location');
 
-                    event.stopPropagation();
-                }
-                else if (reasonsInput.value.trim() == "") {
-                    console.log('ok10');
-                    reasonsInput.setCustomValidity('Give reason(s) for being away');
+                event.stopPropagation();
+            }
+            else if (reasonsInput.value.trim() == "") {
+                console.log('ok10');
+                reasonsInput.setCustomValidity('Give reason(s) for being away');
 
-                    event.stopPropagation();
-                } else if (kinNameInput.value.trim() == "") {
-                    console.log('ok11');
-                    kinNameInput.setCustomValidity('Provide name of your next of kin');
+                event.stopPropagation();
+            } else if (kinNameInput.value.trim() == "") {
+                console.log('ok11');
+                kinNameInput.setCustomValidity('Provide name of your next of kin');
 
-                    event.stopPropagation();
-                } else if (kinRelationInput.value.trim() == "") {
-                    console.log('ok12');
-                    kinRelationInput.setCustomValidity('Specify relationship with your next of kin');
+                event.stopPropagation();
+            } else if (kinRelationInput.value.trim() == "") {
+                console.log('ok12');
+                kinRelationInput.setCustomValidity('Specify relationship with your next of kin');
 
-                    event.stopPropagation();
-                } else if (kinContactInput.value.trim() == "") {
-                    console.log('ok13');
-                    kinContactInput.setCustomValidity('Provide contact of your next of kin');
+                event.stopPropagation();
+            } else if (kinContactInput.value.trim() == "") {
+                console.log('ok13');
+                kinContactInput.setCustomValidity('Provide contact of your next of kin');
 
-                    event.stopPropagation();
-                } else if (schoolSelected.value == 'def') {
-                    console.log('ok14');
-                    schoolSelectInput.setCustomValidity('Select your school');
+                event.stopPropagation();
+            } else if (schoolSelected.value == 'def') {
+                console.log('ok14');
+                schoolSelectInput.setCustomValidity('Select your school');
 
-                    event.stopPropagation();
-                } else if (deptSelected.value == 'def') {
-                    console.log('ok15');
-                    deptSelectInput.setCustomValidity('Select your department');
+                event.stopPropagation();
+            } else if (deptSelected.value == 'def') {
+                console.log('ok15');
+                deptSelectInput.setCustomValidity('Select your department');
 
-                    event.stopPropagation();
-                } else {
-                    console.log('ok16');
+                event.stopPropagation();
+            } else if (startDate == undefined || endDate == undefined) {
+                console.log('ok18');
+                leaveDysInput.setCustomValidity('Select appropriate dates');
 
-                    studentNameInput.setCustomValidity('');
-                    studentRegNumInput.setCustomValidity('');
-                    studentMobileNumInput.setCustomValidity('');
+                event.stopPropagation();
+            } else {
+                console.log('ok16');
 
-                    schoolSelectInput.setCustomValidity('');
-                    deptSelectInput.setCustomValidity('');
+                studentNameInput.setCustomValidity('');
+                studentRegNumInput.setCustomValidity('');
+                studentMobileNumInput.setCustomValidity('');
 
-                    studentHostelInput.setCustomValidity('');
-                    studentRoomNumInput.setCustomValidity('');
-                    apartmentNameInput.setCustomValidity('');
-                    describeLocationInput.setCustomValidity('');
+                schoolSelectInput.setCustomValidity('');
+                deptSelectInput.setCustomValidity('');
 
-                    reasonsInput.setCustomValidity('');
-                    kinNameInput.setCustomValidity('');
-                    kinRelationInput.setCustomValidity('');
-                    kinContactInput.setCustomValidity('');
+                studentHostelInput.setCustomValidity('');
+                studentRoomNumInput.setCustomValidity('');
+                apartmentNameInput.setCustomValidity('');
+                describeLocationInput.setCustomValidity('');
 
-                    $('#loading-modal').modal('show');
+                reasonsInput.setCustomValidity('');
+                kinNameInput.setCustomValidity('');
+                kinRelationInput.setCustomValidity('');
+                kinContactInput.setCustomValidity('');
 
-                    let studentObj = {};
-                    let leaveObj = {};
+                leaveDysInput.setCustomValidity('');
 
-                    studentObj.fullname = studentNameInput.value.trim();
-                    studentObj.reg_no = studentRegNumInput.value.trim();
-                    studentObj.school = schoolSelected.textContent;
-                    studentObj.dept = deptSelected.textContent;
-                    studentObj.residence = residence;
-                    studentObj.mobile_no = studentMobileNumInput.value.trim();
-                    studentObj.reasons = reasonsInput.value.trim();
-                    studentObj.kin_name = kinNameInput.value.trim();
-                    studentObj.kin_relation = kinRelationInput.value.trim();
-                    studentObj.kin_contact = kinContactInput.value.trim();
+                $('#loading-modal').modal('show');
 
-                    leaveObj.start_date = startDate;
-                    leaveObj.end_date = endDate;
+                let studentObj = {};
+                let leaveObj = {};
 
-                    submitLeaveData(studentObj, leaveObj);
-                }
+                studentObj.fullname = studentNameInput.value.trim();
+                studentObj.reg_no = studentRegNumInput.value.trim();
+                studentObj.school = schoolSelected.textContent;
+                studentObj.dept = deptSelected.textContent;
+                studentObj.residence = residence;
+                studentObj.mobile_no = studentMobileNumInput.value.trim();
+                studentObj.reasons = reasonsInput.value.trim();
+                studentObj.kin_name = kinNameInput.value.trim();
+                studentObj.kin_relation = kinRelationInput.value.trim();
+                studentObj.kin_contact = kinContactInput.value.trim();
 
-                studentNameInput.reportValidity();
-                studentRegNumInput.reportValidity();
-                studentMobileNumInput.reportValidity();
+                leaveObj.start_date = startDate;
+                leaveObj.end_date = endDate;
 
-                schoolSelectInput.reportValidity();
-                deptSelectInput.reportValidity();
+                submitLeaveData(studentObj, leaveObj);
+            }
 
-                studentHostelInput.reportValidity();
-                studentRoomNumInput.reportValidity();
-                apartmentNameInput.reportValidity();
-                describeLocationInput.reportValidity();
+            studentNameInput.reportValidity();
+            studentRegNumInput.reportValidity();
+            studentMobileNumInput.reportValidity();
 
-                reasonsInput.reportValidity();
-                kinNameInput.reportValidity();
-                kinRelationInput.reportValidity();
-                kinContactInput.reportValidity();
-                break;
-            default:
-                console.log('default');
-                break;
-        }
+            schoolSelectInput.reportValidity();
+            deptSelectInput.reportValidity();
+
+            studentHostelInput.reportValidity();
+            studentRoomNumInput.reportValidity();
+            apartmentNameInput.reportValidity();
+            describeLocationInput.reportValidity();
+
+            reasonsInput.reportValidity();
+            kinNameInput.reportValidity();
+            kinRelationInput.reportValidity();
+            kinContactInput.reportValidity();
+
+            leaveDysInput.reportValidity();
+            break;
+        default:
+            console.log('default');
+            break;
     }
+
 
     form.classList.add('was-validated');
 }
 
 submitLeaveFormBtn.addEventListener('click', ev => {
+    console.log(ev.target);
+
     checkForm(leaveForm, ev, 'leave-form');
 });
 
