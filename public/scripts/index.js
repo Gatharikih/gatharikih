@@ -206,14 +206,14 @@ function addAcademicObligation() {
     let unitId = create_UUID();
 
     let formRowDiv = document.createElement('div');
-    formRowDiv.setAttribute('id', unitId + '_form-row');
+    formRowDiv.setAttribute('id', 'form-row_' + unitId);
     formRowDiv.setAttribute('class', 'form-row mb-3 float-left');
 
     let formRowDivCol1 = document.createElement('div');
     formRowDivCol1.setAttribute('class', 'col-md-12 px-3 py-3 shadow rounded');
 
     let formRowDivCol1Input = document.createElement('select');
-    formRowDivCol1Input.setAttribute('id', unitId + '_select');
+    formRowDivCol1Input.setAttribute('id', 'select-' + unitId);
     formRowDivCol1Input.setAttribute('class', 'form-select p-1 select-affected-units w-100');
     // formRowDivCol1Input.setAttribute('style', 'width: 100%');
 
@@ -231,35 +231,35 @@ function addAcademicObligation() {
     formRowDivCol2FormCheck_Exam.setAttribute('class', 'form-check form-check-inline');
 
     let formRowDivCol2Checkbox_Lecture_Input = document.createElement('input');
-    formRowDivCol2Checkbox_Lecture_Input.setAttribute('id', unitId + '_lecturer-checkbox');
+    formRowDivCol2Checkbox_Lecture_Input.setAttribute('id', 'lecturer-checkbox_' + unitId);
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('type', 'checkbox');
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('class', 'form-check-input ml-4 lecture-checkbox');
     formRowDivCol2Checkbox_Lecture_Input.setAttribute('value', 'lecture');
 
     let formRowDivCol2Checkbox_LectureLabel = document.createElement('label');
-    formRowDivCol2Checkbox_LectureLabel.setAttribute('for', unitId + '_lecturer-checkbox');
+    formRowDivCol2Checkbox_LectureLabel.setAttribute('for', 'lecturer-checkbox_' + unitId);
     formRowDivCol2Checkbox_LectureLabel.setAttribute('class', 'form-check-label');
     formRowDivCol2Checkbox_LectureLabel.innerHTML = 'Lecture';
 
     let formRowDivCol2Checkbox_CAT_Input = document.createElement('input');
-    formRowDivCol2Checkbox_CAT_Input.setAttribute('id', unitId + '_cat-checkbox');
+    formRowDivCol2Checkbox_CAT_Input.setAttribute('id', 'cat-checkbox_' + unitId);
     formRowDivCol2Checkbox_CAT_Input.setAttribute('type', 'checkbox');
     formRowDivCol2Checkbox_CAT_Input.setAttribute('class', 'form-check-input');
     formRowDivCol2Checkbox_CAT_Input.setAttribute('value', 'cat');
 
     let formRowDivCol2Checkbox_CATLabel = document.createElement('label');
-    formRowDivCol2Checkbox_CATLabel.setAttribute('for', unitId + '_cat-checkbox');
+    formRowDivCol2Checkbox_CATLabel.setAttribute('for', 'cat-checkbox_' + unitId);
     formRowDivCol2Checkbox_CATLabel.setAttribute('class', 'form-check-label');
     formRowDivCol2Checkbox_CATLabel.innerHTML = 'CAT';
 
     let formRowDivCol2Checkbox_Exam_Input = document.createElement('input');
-    formRowDivCol2Checkbox_Exam_Input.setAttribute('id', unitId + '_exam-checkbox');
+    formRowDivCol2Checkbox_Exam_Input.setAttribute('id', 'exam-checkbox_' + unitId);
     formRowDivCol2Checkbox_Exam_Input.setAttribute('type', 'checkbox');
     formRowDivCol2Checkbox_Exam_Input.setAttribute('class', 'form-check-input');
     formRowDivCol2Checkbox_Exam_Input.setAttribute('value', 'exam');
 
     let formRowDivCol2Checkbox_ExamLabel = document.createElement('label');
-    formRowDivCol2Checkbox_ExamLabel.setAttribute('for', unitId + '_exam-checkbox');
+    formRowDivCol2Checkbox_ExamLabel.setAttribute('for', 'exam-checkbox_' + unitId);
     formRowDivCol2Checkbox_ExamLabel.setAttribute('class', 'form-check-label');
     formRowDivCol2Checkbox_ExamLabel.innerHTML = 'Exam';
 
@@ -347,16 +347,26 @@ function submitLeaveData(studentdata, leavedata) {
         let obligationObj = {};
 
         let eachObligationChildNodeId = eachObligationChildNode.id;
-        let id = eachObligationChildNodeId.split('_')[0];
+        let id = eachObligationChildNodeId.split('_')[1];
 
-        let selectEl = document.getElementById(id + '_select');
-        let lectureCheckbox = document.getElementById(id + '_lecturer-checkbox');
-        let catCheckbox = document.getElementById(id + '_cat-checkbox');
-        let examCheckbox = document.getElementById(id + '_exam-checkbox');
+        let selectEl = document.getElementById('select-' + id);
+        let lectureCheckbox = document.getElementById('lecturer-checkbox_' + id);
+        let catCheckbox = document.getElementById('cat-checkbox_' + id);
+        let examCheckbox = document.getElementById('exam-checkbox_' + id);
 
         if (selectEl != null) {
-            let unitSelected = document.querySelector('#' + id + '_select' + ' option:checked');
-            obligationObj.unitname = unitSelected.textContent;
+            let unitSelected = document.querySelector('#select-' + id + ' option:checked');
+
+            if (unitSelected != null) {
+                obligationObj.unit_name = unitSelected.textContent;
+                obligationObj.unit_code = unitSelected.value;
+            } else {
+                obligationObj.unit_name = 'none';
+                obligationObj.unit_code = '000';
+            }
+        } else {
+            obligationObj.unit_name = 'none';
+            obligationObj.unit_code = '000';
         }
 
         // lecture
@@ -380,7 +390,10 @@ function submitLeaveData(studentdata, leavedata) {
             obligationObj.exam = 0;
         }
 
-        obligationsObjArray.push(obligationObj);
+        if (lectureCheckbox.checked || catCheckbox.checked || examCheckbox.checked) {
+            // if at least one of the lecturer CAT or exam checkboxes is checked
+            obligationsObjArray.push(obligationObj);
+        }
     });
 
     leaveDataObj.obligations_array_data = obligationsObjArray;
