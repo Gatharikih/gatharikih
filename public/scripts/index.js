@@ -193,7 +193,7 @@ function activateSidebarBtn(ev) {
 // create a random identifier
 function create_UUID() {
     let dt = new Date().getTime();
-    let uuid = 'xxxx'.replace(/[xy]/g, function (c) {
+    let uuid = 'xxxxxx'.replace(/[xy]/g, function (c) {
         let r = (dt + Math.random() * 16) % 16 | 0;
         dt = Math.floor(dt / 16);
         return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
@@ -392,6 +392,8 @@ function submitLeaveData(studentdata, leavedata) {
 
         if (lectureCheckbox.checked || catCheckbox.checked || examCheckbox.checked) {
             // if at least one of the lecturer CAT or exam checkboxes is checked
+            obligationObj.obligation_id = create_UUID();
+
             obligationsObjArray.push(obligationObj);
         }
     });
