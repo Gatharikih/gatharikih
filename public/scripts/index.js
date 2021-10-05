@@ -404,7 +404,7 @@ function submitLeaveData(studentdata, leavedata) {
 
     console.log(leaveDataObj);
 
-    let createLeavePromise = fetchData('https://odl.embuni.ac.ke:3800/create/leave', {
+    let createLeavePromise = fetchData('http://localhost:4000/create/leave', {
         method: 'POST',
         headers: {
             // 'Authorization': 'Bearer ' + localStorage.getItem('x_Tkn'),
@@ -423,6 +423,12 @@ function submitLeaveData(studentdata, leavedata) {
             let leaveResult = await result.json();
 
             console.log(leaveResult);
+
+            $('#notification-modal').modal('show');
+
+            setTimeout(() => {
+                $('#notification-modal').modal('hide');
+            }, 4000);
         } else if (status === 555) {
             alertNotification('error', 'Timeout. Check your network connectivity.');
             return;

@@ -163,8 +163,8 @@
           <div id="settings-div" class="d-none">
           </div>
           <div id="modals-div">
-            <div id="leave-form-modal" class="modal swing-in-top-fwd overflow-auto" data-backdrop="static" tabindex="-1" role="dialog"
-              aria-labelledby="leave-form-modal-label" aria-hidden="true">
+            <div id="leave-form-modal" class="modal slide-in-top overflow-auto" data-backdrop="static" tabindex="-1"
+              role="dialog" aria-labelledby="leave-form-modal-label" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -216,10 +216,11 @@
                         </div>
                       </div>
                       <div class="form-row">
-                        <label for="input-dept" class="col-sm-2 col-form-label float-left fw-500 mt-4">Department</label>
+                        <label for="input-dept"
+                          class="col-sm-2 col-form-label float-left fw-500 mt-4">Department</label>
                         <div class="col-md-8 mt-4">
                           <select id="input-dept-select" class="form-select p-2 shadow" style="width: 75%;" required>
-                        
+
                           </select>
                           <div class="invalid-feedback">
                             Please select your department.
@@ -370,7 +371,8 @@
                       </div>
                       <div class="form-row">
                         <div class="col-12 mt-4 mb-2">
-                          <div id="addunit-btn" class="rounded-pill border w-12 py-1 pl-3 shadow pointer events-none pointer">
+                          <div id="addunit-btn"
+                            class="rounded-pill border w-12 py-1 pl-3 shadow pointer events-none pointer">
                             <svg id="plus-svg" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                               class="bi bi-plus-lg svg-20 text-success pointer ml-3" viewBox="0 0 16 16">
                               <path
@@ -403,8 +405,26 @@
                 </div>
               </div>
             </div>
+            <div class="modal swing-in-top-fwd scale-in-center" id="notification-modal" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content border-0">
+                  <div class="modal-body">
+                    <div class="mt-5 ml-42">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="#198754" class="bi bi-check-circle-fill success-svg"
+                        viewBox="0 0 16 16">
+                        <path
+                          d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                      </svg>
+                    </div>
+                    <p id="wait" class="mt-4 text-info text-center font-weight-bold">Your leave application has
+                      been submitted successfully.<br> Awaiting approval.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div id="alert" class="d-none alert alert-info position-absolute text-center w-50 top-0 mt-2 ml-5 slide-right slide-in-top"
+          <div id="alert"
+            class="d-none alert alert-info position-absolute text-center w-50 top-0 mt-2 ml-5 slide-right slide-in-top"
             role="alert">
             <span id="alert-text" class="text-center">Success!</span>
           </div>

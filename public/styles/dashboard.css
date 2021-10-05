@@ -193,7 +193,7 @@ label, .fs-9rem {
 }
 
 #wait {
-  margin-left: 40%;
+  margin-left: 8%;
 }
 
 .top-0 {
@@ -202,6 +202,19 @@ label, .fs-9rem {
 
 #alert {
   z-index: 2050;
+}
+
+span.select2-container {
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.success-svg {
+  width: 4rem;
+  height: 4rem;
+}
+
+.ml-42 {
+  margin-left: 42%;
 }
 
 @media (min-width: 768px) {
