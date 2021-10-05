@@ -314,12 +314,18 @@ function addAcademicObligation() {
 
 // display corresponding div respective to the sidebar button clicked
 function displayFunc(desc) {
+    applyForLeaveBtn.classList.add('d-none');
+    applyForLeaveBtn.classList.remove('d-block');
+
     switch (desc) {
         case 'dashboard':
             titleDiv.innerHTML = 'Dashboard';
             break;
         case 'leave':
             titleDiv.innerHTML = 'Leave';
+
+            applyForLeaveBtn.classList.add('d-block');
+            applyForLeaveBtn.classList.remove('d-none');
             break;
         case 'leave-to-approve':
             titleDiv.innerHTML = 'Leaves to approve';
@@ -425,6 +431,7 @@ function submitLeaveData(studentdata, leavedata) {
             console.log(leaveResult);
 
             $('#notification-modal').modal('show');
+            leaveForm.reset();
 
             setTimeout(() => {
                 $('#notification-modal').modal('hide');
@@ -443,6 +450,7 @@ function submitLeaveData(studentdata, leavedata) {
         alertNotification('error', 'Request timeout');
     }).finally(() => {
         $('#loading-modal').modal('hide');
+        $('#leave-form-modal').modal('hide');
     });
 }
 
