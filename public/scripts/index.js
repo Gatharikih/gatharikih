@@ -24,6 +24,9 @@ let studentRegNumInput = document.getElementById('input-reg');
 let studentHostelInput = document.getElementById('hostel-name-input');
 let studentRoomNumInput = document.getElementById('room-number-input');
 
+let medicalFileDiv = document.getElementById('medical-file-div');
+let medicalFileInput = document.getElementById('medical-file-input');
+
 let hostelNameDiv = document.getElementById('hostel-name-div');
 let hostelRoomDiv = document.getElementById('hostel-room-div');
 let apartmentNameDiv = document.getElementById('apartment-name-div');
@@ -41,6 +44,7 @@ let kinContactInput = document.getElementById('kin-contact-input');
 let leaveForm = document.getElementById('leave-form');
 let obligationsDiv = document.getElementById('obligations-div');
 let residenceRadioInput = document.querySelectorAll('input[name="residence-radio-options"]');
+let leaveRadioInput = document.querySelectorAll('input[name="leave-type-radio-options"]');
 
 let alert = document.getElementById('alert');
 let alertTxt = document.getElementById('alert-text');
@@ -56,7 +60,7 @@ let submitLeaveFormBtn = document.getElementById('submit-leave-form-btn');
 
 let xmlns = "http://www.w3.org/2000/svg";
 
-let residence;
+let residence, leaveType;
 let startDate, endDate;
 
 let unitsData = [
@@ -115,6 +119,8 @@ $(document).ready(function () {
         // TODO: max days - 5 - https://select2.org/data-sources/ajax
         NumOfDys.innerHTML = numOfDays;
     });
+
+    bsCustomFileInput.init();
 });
 
 function timeOut(contr) {
@@ -454,6 +460,222 @@ function submitLeaveData(studentdata, leavedata) {
     });
 }
 
+// Create a table of all users
+function createLeaveTable(data) {
+    while (leaveDiv.firstChild) {
+        leaveDiv.removeChild(leaveDiv.firstChild);
+    }
+
+    if (data.length > 0) {
+        let tableEl = document.createElement('table');
+        tableEl.setAttribute('id', 'users-table');
+        tableEl.setAttribute('class', 'table table-hover');
+
+        let tHead = document.createElement('thead');
+        tHead.setAttribute('class', 'thead-light');
+
+        let tHeadRow = document.createElement('tr');
+
+        let tBody = document.createElement('tbody');
+
+        let tHead_ID = document.createElement('th');
+        tHead_ID.innerHTML = 'ID';
+
+        let tHead_Name = document.createElement('th');
+        tHead_Name.innerHTML = 'Name';
+
+        let tHead_Email = document.createElement('th');
+        tHead_Email.innerHTML = 'Email address';
+
+        // let tHead_Role = document.createElement('th');
+        // tHead_Role.innerHTML = 'User role';
+
+        let tHead_Options = document.createElement('th');
+        tHead_Options.innerHTML = '';
+
+        tHeadRow.appendChild(tHead_ID);
+        tHeadRow.appendChild(tHead_Name);
+        tHeadRow.appendChild(tHead_Email);
+        // tHeadRow.appendChild(tHead_Role);
+        tHeadRow.appendChild(tHead_Options);
+
+        tHead.appendChild(tHeadRow);
+        tableEl.appendChild(tHead);
+
+        data.forEach(eachUser => {
+            // create row for each role
+            let userStatus = eachUser.status;
+
+            popContent = (userStatus == 'Active') ? '<b>Delete</b><br><b>Deactivate</b>' : '<b>Delete</b><br><b>Activate</br>';
+
+            let trID = eachUser.id;
+
+            let userTR = document.createElement('tr');
+            userTR.setAttribute('id', trID);
+
+            let userId_TD = document.createElement('td');
+            userId_TD.innerHTML = eachUser.id;
+
+            let userName_TD = document.createElement('td');
+            userName_TD.setAttribute('class', 'text-capitalize');
+            userName_TD.innerHTML = eachUser.fullName;
+
+            let userEmail_TD = document.createElement('td');
+            userEmail_TD.setAttribute('class', 'text-lowercase');
+            userEmail_TD.innerHTML = eachUser.email;
+
+            // let userRole_TD = document.createElement('td');
+            // userRole_TD.setAttribute('class', 'text-capitalize');
+            // userRole_TD.innerHTML = eachUser.role;
+
+            let userOptions_TD = document.createElement('td');
+            userOptions_TD.setAttribute('class', 'pointer');
+
+            let userTD_OptionsA = document.createElement('a');
+            userTD_OptionsA.setAttribute('tabindex', '0');
+            userTD_OptionsA.setAttribute('class', 'popova');
+            userTD_OptionsA.setAttribute('data-toggle', 'popover');
+
+            //three-dots svg
+            let optionSVG = document.createElementNS(xmlns, 'svg');
+            optionSVG.setAttribute('viewBox', '0 0 16 16');
+            optionSVG.setAttribute('class', 'bi bi-three-dots');
+            optionSVG.setAttribute('fill', 'currentColor');
+
+            let path = document.createElementNS(xmlns, 'path');
+            path.setAttribute('d', 'M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z');
+            path.setAttribute('fill-rule', 'evenodd');
+
+            optionSVG.appendChild(path);
+
+            userTD_OptionsA.appendChild(optionSVG);
+            userOptions_TD.appendChild(userTD_OptionsA);
+
+            userTR.appendChild(userId_TD);
+            userTR.appendChild(userName_TD);
+            userTR.appendChild(userEmail_TD);
+            // userTR.appendChild(userRole_TD);
+            userTR.appendChild(userOptions_TD);
+
+            tBody.appendChild(userTR);
+        });
+
+        tableEl.appendChild(tBody);
+        usersTableDiv.appendChild(tableEl);
+
+        tippy('td.pointer>a.popova>svg.bi-three-dots', {
+            content: popContent,
+            trigger: 'click',
+            role: 'popover',
+            placement: 'left',
+            allowHTML: true,
+            onShown(instance) {
+                let tipyRowId = instance.reference.parentNode.parentNode.parentNode.id;
+
+                console.log(tipyRowId);
+
+                $('[data-tippy-root]').one('click', vent => {
+                    console.log(vent);
+
+                    if (tipyRowId != null || tipyRowId != undefined) {
+                        // Delete user
+                        if (vent.target.innerHTML == 'Delete') {
+                            console.log(vent.target.innerHTML);
+
+                            let fetchURL = 'http://127.0.0.1:3300/delete/users/' + tipyRowId;
+                            let options = {
+                                method: 'POST',
+                                signal: controller.signal
+                            }
+
+                            let deleteUserPromise = fetchData(fetchURL, options);
+                            let timeoutPr = timeOut(controller);
+
+                            race(deleteUserPromise, timeoutPr).then(result => {
+                                let deleteStatus = result.status;
+
+                                if (deleteStatus == 200) {
+                                    // deleted successfully
+                                    let rowToRemove = document.getElementById(tipyRowId);
+                                    tBody.removeChild(rowToRemove);
+
+                                    alertNotification('success', 'User deleted');
+                                } else {
+                                    alertNotification('error', 'User not deleted');
+                                }
+                            }).catch(error => {
+                                alertNotification('error');
+                            });
+                        }
+
+                        // Deactivate user
+                        if (vent.target.innerHTML == 'Deactivate') {
+                            console.log(vent.target.innerHTML);
+
+                            let fetchURL = 'http://127.0.0.1:3300/status/users/' + tipyRowId;
+                            let options = {
+                                method: 'POST',
+                                body: JSON.stringify(),
+                                signal: controller.signal
+                            }
+
+                            let updateStatusPromise = fetchData(fetchURL, options);
+                            let timeoutPr = timeOut(controller);
+
+                            race(updateStatusPromise, timeoutPr).then(result => {
+                                let deleteStatus = result.status;
+
+                                if (deleteStatus == 200) {
+                                    // status updated
+                                    // TODO: Refresh page to reflect changes
+
+                                    alertNotification('success', 'Status updated');
+                                } else {
+                                    alertNotification('error', 'Status not updated');
+                                }
+                            }).catch(error => {
+                                alertNotification('error');
+                            });
+                        }
+                    }
+                });
+
+                // if (customerObj !== undefined) {
+                //     $('[data-tippy-root]').one('click', vent => {
+                //         console.log(vent);
+
+                //         loadingModal();
+
+                //         controller = new AbortController();
+
+                //         let fetchURL = 'http://127.0.0.1:3000/customers/detail/' + tipyRowId;
+                //         let options = {
+                //             method: 'GET',
+                //             signal: controller.signal
+                //         }
+
+                //         let searchCustPromise = fetchData(fetchURL, options);
+                //         let timeoutPr = timeOut(controller);
+                //     });
+                // } else {
+                //     alertNotification('error', 'Processing error');
+                //     return;
+                // }
+            }
+        });
+    } else {
+        while (leaveDiv.firstChild) {
+            leaveDiv.removeChild(leaveDiv.firstChild);
+        }
+
+        let noTransactionP = document.createElement('p');
+        noTransactionP.setAttribute('class', 'text-center font-italic font-weight-bold mt-6 mb-6');
+        noTransactionP.innerHTML = 'Your leave applications will appear here';
+
+        leaveDiv.appendChild(noTransactionP);
+    }
+}
+
 // disabling form submissions if there are invalid fields
 async function checkForm(form, event, desc) {
     // valid form
@@ -746,6 +968,24 @@ residenceRadioInput.forEach(eachResidenceRadioInput => {
 
             apartmentNameInput.setAttribute('required', '');
             describeLocationInput.setAttribute('required', '');
+        }
+    });
+});
+
+leaveRadioInput.forEach(eachLeaveRadioInput => {
+    eachLeaveRadioInput.addEventListener('change', ev => {
+        leaveType = ev.target.value || ev.target.textContent;
+
+        if (leaveType == 'medical') {
+            medicalFileDiv.classList.add('d-block');
+            medicalFileDiv.classList.remove('d-none');
+
+            medicalFileInput.setAttribute('required', '');
+        } else {
+            medicalFileDiv.classList.add('d-none');
+            medicalFileDiv.classList.remove('d-block');
+
+            medicalFileInput.removeAttribute('required');
         }
     });
 });

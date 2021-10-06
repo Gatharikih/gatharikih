@@ -142,7 +142,8 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
                 <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
               </div>
-              <button id="apply-for-leave-btn" type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle d-none">
+              <button id="apply-for-leave-btn" type="button"
+                class="btn btn-sm btn-outline-secondary dropdown-toggle d-none">
                 <span data-feather="calendar"></span>
                 Apply for leave
               </button>
@@ -298,6 +299,32 @@
                           <h6 class="float-left underline">PARTICULARS OF LEAVE-OUT</h6>
                         </div>
                       </div>
+                      <div class="form-row mb-3">
+                        <div class="col-md-12 float-left mt-4">
+                          <span class="mr-4 float-left fw-500 fs-9rem">Type of leave:</span>
+                          <div class="form-check form-check-inline float-left ml-4 shadow px-2 py-1 rounded">
+                            <input class="form-check-input" type="radio" name="leave-type-radio-options"
+                              id="medical-leave-radio" value="medical" required>
+                            <label class="form-check-label" for="medical-leave-radio">Medical leave</label>
+                          </div>
+                          <div class="form-check form-check-inline float-left shadow px-2 py-1 rounded">
+                            <input class="form-check-input" type="radio" name="leave-type-radio-options"
+                              id="welfare-leave-radio" value="welfare" required>
+                            <label class="form-check-label" for="welfare-leave-radio">Student welfare leave</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div id="medical-file-div" class="col-md-8 d-none mt-4">
+                          <div class="custom-file mb-5">
+                            <input type="file" class="custom-file-input" id="medical-file-input" name="medical-file">
+                            <label class="custom-file-label" for="medical-file-input">Choose contacts file</label>
+                          </div>
+                          <div class="invalid-feedback">
+                            Provide your hostel name.
+                          </div>
+                        </div>
+                      </div>
                       <div class="form-row">
                         <div id="reasons-div" class="col-md-9">
                           <label for="reasons-textarea" class="form-label float-left fw-500">Reasons for being away and
@@ -405,7 +432,8 @@
                 </div>
               </div>
             </div>
-            <div class="modal swing-in-top-fwd scale-in-center" id="notification-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal swing-in-top-fwd scale-in-center" id="notification-modal" tabindex="-1" role="dialog"
+              aria-hidden="true">
               <div class="modal-dialog" role="document">
                 <div class="modal-content border-0">
                   <div class="modal-body">
@@ -438,6 +466,7 @@
   <script src="./scripts/moment.min.js"></script>
   <script src="./scripts/select2.min.js"></script>
   <script src="./scripts/daterangepicker.js"></script>
+    <script src="./scripts/bs-custom-file-input.min.js"></script>
   <script src="./scripts/index.js"></script>
 </body>
 
