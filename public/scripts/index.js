@@ -26,6 +26,7 @@ let studentRoomNumInput = document.getElementById('room-number-input');
 
 let medicalFileDiv = document.getElementById('medical-file-div');
 let medicalFileInput = document.getElementById('medical-file-input');
+let medicalFileForm = document.getElementById('medical-file-form');
 
 let hostelNameDiv = document.getElementById('hostel-name-div');
 let hostelRoomDiv = document.getElementById('hostel-room-div');
@@ -413,6 +414,8 @@ function submitLeaveData(studentdata, leavedata) {
     leaveDataObj.obligations_array_data = obligationsObjArray;
     leaveDataObj.studentdata = studentdata;
     leaveDataObj.leavedata = leavedata;
+    
+    leaveDataObj.medicalFile = new FormData(medicalFileForm);
 
     console.log(leaveDataObj);
 
