@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @Gatharikih aka the_script;
-- 👀 I’m interested in software development, front and back-end;
+- 👀 I’m interested in software development, front and back-end -Microservices/REST;
 - 🌱 I’m currently learning front-end frameworks specifically React;
 - 💞️ I’m looking to collaborate on founding tech startup in Kenya;
 - 📫 You can reach me via email sgatharikih@gmail.com. 
