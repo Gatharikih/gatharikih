@@ -2,7 +2,7 @@
 - 👀 I’m interested in software development, front & back-end - Microservices/REST;
 - 💞️ I’m looking to collaborate on founding tech startup in Kenya;
 - 📫 You can reach me via email sgatharikih@gmail.com. 
-- LAMP, WAMP, MEAN stack variants - PostgreSQL, MySQL/Sequelize, MongoDB/Mongoose, NodeJS/Express, Java - Spring/Android, JavaScript/ES6+, React/Redux, C++;
+- 🪇 LAMP, WAMP, MEAN stack variants - PostgreSQL, MySQL/Sequelize, MongoDB/Mongoose, NodeJS/Express, Java - Spring/Android, JavaScript/ES6+, React/Redux, C++;
 - 📨 Messaging - RabbitMQ & Kafka;
 - 🌱 Cloud - GCP/Firebase, AWS/Lightsail;
 
