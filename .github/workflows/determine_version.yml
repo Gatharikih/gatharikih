@@ -43,12 +43,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
+      - name: Cache tools
+        id: cache-tools
+        uses: actions/cache@v3
+        with:
+          path: |
+            /usr/bin/xmllint
+            /usr/bin/jq
+          key: ${{ runner.os }}-tools-${{ hashFiles('pom.xml', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-tools-
+
       - name: Install required tools
+        if: steps.cache-tools.outputs.cache-hit != 'true'
         run: |
           if [[ -f "pom.xml" ]]; then
+            echo "Installing libxml2-utils..."
             sudo apt-get update
             sudo apt-get install -y libxml2-utils
           elif [[ -f "package.json" ]]; then
+            echo "Installing jq..."
             sudo apt-get update
             sudo apt-get install -y jq
           fi
