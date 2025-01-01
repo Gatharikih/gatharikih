@@ -61,7 +61,11 @@ jobs:
           fi
           
           echo "project_version=${PROJECT_VERSION}" >> $GITHUB_OUTPUT
-      
+
+  display_lang_and_version:
+    needs: [detect_language, detect_version]  
+    runs-on: ubuntu-latest
+    steps:
       - name: Display project language & version
         run: | 
           echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
