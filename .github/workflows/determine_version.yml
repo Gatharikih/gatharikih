@@ -10,7 +10,6 @@ jobs:
 
     outputs:
       project_language: ${{ steps.detect_language.outputs.project_language }}
-      version: ${{ steps.detect_version.outputs.version }}
       
     steps:
       - name: Checkout repository
