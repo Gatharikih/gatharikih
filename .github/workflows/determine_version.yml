@@ -1,0 +1,54 @@
+name: Detect Project Language and Version
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  detect_language:
+    runs-on: ubuntu-latest
+
+    outputs:
+      project_language: ${{ steps.detect_language.outputs.project_language }}
+      version: ${{ steps.detect_version.outputs.version }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect project language
+        id: detect_language
+        run: |
+          if [[ -f "pom.xml" ]]; then
+            PROJECT_LANGUAGE="java"
+          elif [[ -f "package.json" ]]; then
+            PROJECT_LANGUAGE="javascript"
+          else
+            PROJECT_LANGUAGE="other"
+          fi
+          
+          echo "project_language=$PROJECT_LANGUAGE" >> $GITHUB_OUTPUT
+
+      - name: Display detected language
+        run: | 
+          echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
+
+      - name: Execute actions based on project language
+        id: detect_version
+        if: ${{ steps.detect_language.outputs.project_language == 'java' }}
+        run: |
+          if [[ "${{ steps.detect_language.outputs.project_language" == "java" }} ]]; then
+            echo "Java project detected. Performing Java-specific actions..."
+            VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+          elif [[  "${{ steps.detect_language.outputs.project_language" == "javascript" }}  ]]; then
+            echo "JavaScript project detected. Performing JavaScript-specific actions..."
+            VERSION=$(jq -r '.version' package.json)
+          else
+            echo "No specific actions defined for this project type."
+            VERSION="1.0.0"
+          fi
+
+      - name: Display project version
+        run: | 
+          echo "Project Version: ${{ steps.detect_version.outputs.version }}"
+
