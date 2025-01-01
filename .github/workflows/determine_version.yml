@@ -36,17 +36,20 @@ jobs:
       - name: Execute actions based on project language
         id: detect_version
         run: |
-          if [[ "${{ steps.detect_language.outputs.project_language" == "java" }} ]]; then
+          if [[ "${{ steps.detect_language.outputs.project_language }}" == "java" ]]; then
             echo "Java project detected. Performing Java-specific actions..."
             VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
-          elif [[  "${{ steps.detect_language.outputs.project_language" == "javascript" }}  ]]; then
+          elif [[ "${{ steps.detect_language.outputs.project_language }}" == "javascript" ]]; then
             echo "JavaScript project detected. Performing JavaScript-specific actions..."
             VERSION=$(jq -r '.version' package.json)
           else
             echo "No specific actions defined for this project type."
             VERSION="1.0.0"
           fi
-
+          
+          echo "Detected version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      
       - name: Display project version
         run: | 
           echo "Project Version: ${{ steps.detect_version.outputs.version }}"
