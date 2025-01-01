@@ -43,8 +43,7 @@ jobs:
             VERSION="1.0.0"
           fi
           
-          echo "version=$VERSION" >> $GITHUB_ENV
-          echo "Detected version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
       
       - name: Display project language & version
         run: | 
