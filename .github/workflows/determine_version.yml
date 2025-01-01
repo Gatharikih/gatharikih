@@ -5,46 +5,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  detect_language:
+  detect_language_and_version:
     runs-on: ubuntu-latest
 
     outputs:
-      project_language: ${{ steps.detect_language.outputs.project_language }}
+      language: ${{ steps.detect_language_and_version.outputs.project_language }}
+      version: ${{ steps.detect_language_and_version.outputs.project_version }}
       
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Detect project 
+      - name: Detect language 
         id: detect_language
         run: |
           if [[ -f "pom.xml" ]]; then
-            PROJECT_LANGUAGE="java"
+            LANGUAGE="java"
           elif [[ -f "package.json" ]]; then
-            PROJECT_LANGUAGE="javascript"
+            LANGUAGE="javascript"
           else
-            PROJECT_LANGUAGE="other"
+            LANGUAGE="other"
           fi
           
-          echo "project_language=$PROJECT_LANGUAGE" >> $GITHUB_OUTPUT
+          echo "language=$LANGUAGE" >> $GITHUB_OUTPUT
 
-  detect_version:
-    runs-on: ubuntu-latest
-
-    outputs:
-      version: ${{ steps.detect_version.outputs.version }}
-      
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Detect project version
+      - name: Detect version 
         id: detect_version
         run: |
-          if [[ "${{ steps.detect_language.outputs.project_language }}" == "java" ]]; then
+          if [[ "${{ steps.detect_language_and_version.outputs.language }}" == "java" ]]; then
             echo "Java project detected. Performing Java-specific actions..."
             VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
-          elif [[ "${{ steps.detect_language.outputs.project_language }}" == "javascript" ]]; then
+          elif [[ "${{ steps.detect_language_and_version.outputs.language }}" == "javascript" ]]; then
             echo "JavaScript project detected. Performing JavaScript-specific actions..."
             VERSION=$(jq -r '.version' package.json)
           else
@@ -52,12 +43,10 @@ jobs:
             VERSION="1.0.0"
           fi
           
+          echo "version=$VERSION" >> $GITHUB_ENV
           echo "Detected version: $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
       
       - name: Display project language & version
         run: | 
-          echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
-          echo "Project Version: ${{ steps.detect_version.outputs.version }}"
-
-        
+          echo "Project Language: ${{ steps.detect_language_and_version.outputs.language }}"
+          echo "Project Version: ${{ steps.detect_language_and_version.outputs.version }}"
