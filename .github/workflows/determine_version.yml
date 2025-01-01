@@ -1,5 +1,4 @@
 name: Detect Project Language and Version
-
 on:
   workflow_call:
   workflow_dispatch:
@@ -7,7 +6,6 @@ on:
 jobs:
   detect_language_and_version:
     runs-on: ubuntu-latest
-
     outputs:
       language: ${{ steps.detect_language.outputs.project_language }}
       version: ${{ steps.detect_version.outputs.project_version }}
@@ -20,32 +18,42 @@ jobs:
         id: detect_language
         run: |
           if [[ -f "pom.xml" ]]; then
-            LANGUAGE="java"
+            PROJECT_LANGUAGE="java"
           elif [[ -f "package.json" ]]; then
-            LANGUAGE="javascript"
+            PROJECT_LANGUAGE="javascript"
           else
-            LANGUAGE="other"
+            PROJECT_LANGUAGE="other"
           fi
           
-          echo "language=$LANGUAGE" >> $GITHUB_OUTPUT
+          echo "project_language=${PROJECT_LANGUAGE}" >> $GITHUB_OUTPUT
+
+      - name: Install required tools
+        run: |
+          if [[ -f "pom.xml" ]]; then
+            sudo apt-get update
+            sudo apt-get install -y libxml2-utils
+          elif [[ -f "package.json" ]]; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
 
       - name: Detect version 
         id: detect_version
         run: |
-          if [[ "${{ steps.detect_language_and_version.outputs.language }}" == "java" ]]; then
-            echo "Java project detected. Performing Java-specific actions..."
-            VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
-          elif [[ "${{ steps.detect_language_and_version.outputs.language }}" == "javascript" ]]; then
-            echo "JavaScript project detected. Performing JavaScript-specific actions..."
-            VERSION=$(jq -r '.version' package.json)
+          if [[ "${{ steps.detect_language.outputs.project_language }}" == "java" ]]; then
+            echo "Java project detected. Extracting version from pom.xml..."
+            PROJECT_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+          elif [[ "${{ steps.detect_language.outputs.project_language }}" == "javascript" ]]; then
+            echo "JavaScript project detected. Extracting version from package.json..."
+            PROJECT_VERSION=$(jq -r '.version' package.json)
           else
-            echo "No specific actions defined for this project type."
-            VERSION="1.0.0"
+            echo "No specific version detection for this project type."
+            PROJECT_VERSION="1.0.0"
           fi
           
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "project_version=${PROJECT_VERSION}" >> $GITHUB_OUTPUT
       
       - name: Display project language & version
         run: | 
-          echo "Project Language: ${{ steps.detect_language.outputs.language }}"
-          echo "Project Version: ${{ steps.detect_version.outputs.version }}"
+          echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
+          echo "Project Version: ${{ steps.detect_version.outputs.project_version }}"
