@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      language: ${{ steps.detect_language_and_version.outputs.project_language }}
-      version: ${{ steps.detect_language_and_version.outputs.project_version }}
+      language: ${{ steps.detect_language.outputs.project_language }}
+      version: ${{ steps.detect_version.outputs.project_version }}
       
     steps:
       - name: Checkout repository
@@ -48,5 +48,5 @@ jobs:
       
       - name: Display project language & version
         run: | 
-          echo "Project Language: ${{ steps.detect_language_and_version.outputs.language }}"
-          echo "Project Version: ${{ steps.detect_language_and_version.outputs.version }}"
+          echo "Project Language: ${{ steps.detect_language.outputs.language }}"
+          echo "Project Version: ${{ steps.detect_version.outputs.version }}"
