@@ -42,7 +42,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Detect version based on project language
+      - name: Detect project version
         id: detect_version
         run: |
           if [[ "${{ steps.detect_language.outputs.project_language }}" == "java" ]]; then
