@@ -1,0 +1,46 @@
+name: Determine environment
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  determine_environment:
+    runs-on: ubuntu-latest
+
+    outputs:
+      branch_name: ${{ steps.set_env.outputs.branch_name }}
+      environment_name: ${{ steps.set_env.outputs.environment_name }}
+      environment_name_normalized: ${{ steps.set_env.outputs.environment_name_normalized }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine environment
+        id: set_env
+        run: |
+          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          
+          if [[ "${{ github.ref }}" == "refs/heads/development" || "${{ github.ref }}" == "refs/heads/dev" || "${{ github.ref }}" == "refs/heads/stage" ]]; then
+            ENVIRONMENT_NAME="development"
+            ENVIRONMENT_NAME_NORMALIZED="Development"
+          elif [[ "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/canary" ]]; then
+            ENVIRONMENT_NAME="production"
+            ENVIRONMENT_NAME_NORMALIZED="Production"
+          elif [[ "${{ github.ref }}" == "refs/heads/testing" ]]; then
+            ENVIRONMENT_NAME="testing"
+            ENVIRONMENT_NAME_NORMALIZED="Testing"
+          fi
+          
+          # Set outputs
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "environment_name=$ENVIRONMENT_NAME" >> $GITHUB_OUTPUT
+          echo "environment_name_normalized=$ENVIRONMENT_NAME_NORMALIZED" >> $GITHUB_OUTPUT
+
+      - name: Display environment variables
+        run: |
+          echo "Branch Name: ${{ steps.set_env.outputs.branch_name  }}"
+          echo "Environment Name: ${{ steps.set_env.outputs.environment_name }}"
+          echo "Normalized Environment Name: ${{ steps.set_env.outputs.environment_name_normalized  }}"
