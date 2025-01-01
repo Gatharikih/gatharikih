@@ -35,7 +35,6 @@ jobs:
 
       - name: Execute actions based on project language
         id: detect_version
-        if: ${{ steps.detect_language.outputs.project_language == 'java' }}
         run: |
           if [[ "${{ steps.detect_language.outputs.project_language" == "java" }} ]]; then
             echo "Java project detected. Performing Java-specific actions..."
