@@ -4,11 +4,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  detect_language_and_version:
+  detect_language:
     runs-on: ubuntu-latest
     outputs:
       project_language: ${{ steps.detect_language.outputs.project_language }}
-      project_version: ${{ steps.detect_version.outputs.project_version }}
       
     steps:
       - name: Checkout repository
@@ -27,6 +26,16 @@ jobs:
           
           echo "project_language=${PROJECT_LANGUAGE}" >> $GITHUB_OUTPUT
 
+  detect_version:
+    needs: detect_language  
+    runs-on: ubuntu-latest
+    outputs:
+      project_version: ${{ steps.detect_version.outputs.project_version }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Install required tools
         run: |
           if [[ -f "pom.xml" ]]; then
