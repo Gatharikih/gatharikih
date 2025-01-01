@@ -49,10 +49,10 @@ jobs:
       - name: Detect version 
         id: detect_version
         run: |
-          if [[ "${{ steps.detect_language.outputs.project_language }}" == "java" ]]; then
+          if [[ "${{ needs.detect_language.outputs.project_language }}" == "java" ]]; then
             echo "Java project detected. Extracting version from pom.xml..."
             PROJECT_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
-          elif [[ "${{ steps.detect_language.outputs.project_language }}" == "javascript" ]]; then
+          elif [[ "${{ needs.detect_language.outputs.project_language }}" == "javascript" ]]; then
             echo "JavaScript project detected. Extracting version from package.json..."
             PROJECT_VERSION=$(jq -r '.version' package.json)
           else
@@ -62,11 +62,11 @@ jobs:
           
           echo "project_version=${PROJECT_VERSION}" >> $GITHUB_OUTPUT
 
-  display_lang_and_version:
+  display_language_and_version:
     needs: [detect_language, detect_version]  
     runs-on: ubuntu-latest
     steps:
       - name: Display project language & version
         run: | 
-          echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
-          echo "Project Version: ${{ steps.detect_version.outputs.project_version }}"
+          echo "Project Language: ${{ needs.detect_language.outputs.project_language }}"
+          echo "Project Version: ${{ needs.detect_version.outputs.project_version }}"
