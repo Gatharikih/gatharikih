@@ -33,7 +33,17 @@ jobs:
         run: | 
           echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
 
-      - name: Execute actions based on project language
+  detect_version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.detect_version.outputs.version }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect version based on project language
         id: detect_version
         run: |
           if [[ "${{ steps.detect_language.outputs.project_language }}" == "java" ]]; then
@@ -54,3 +64,4 @@ jobs:
         run: | 
           echo "Project Version: ${{ steps.detect_version.outputs.version }}"
 
+        
