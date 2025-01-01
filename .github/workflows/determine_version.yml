@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Detect project language
+      - name: Detect project 
         id: detect_language
         run: |
           if [[ -f "pom.xml" ]]; then
@@ -27,10 +27,6 @@ jobs:
           fi
           
           echo "project_language=$PROJECT_LANGUAGE" >> $GITHUB_OUTPUT
-
-      - name: Display detected language
-        run: | 
-          echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
 
   detect_version:
     runs-on: ubuntu-latest
@@ -59,8 +55,9 @@ jobs:
           echo "Detected version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
       
-      - name: Display project version
+      - name: Display project language & version
         run: | 
+          echo "Project Language: ${{ steps.detect_language.outputs.project_language }}"
           echo "Project Version: ${{ steps.detect_version.outputs.version }}"
 
         
