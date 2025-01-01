@@ -3,8 +3,8 @@ name: Determine environment
 on:
   workflow_call:
     outputs:
-      project_language:
-        description: "Detected environment"
+      environment_name:
+        description: "Detected environment name"
         value: ${{ jobs.determine_environment.outputs.environment_name }}
   workflow_dispatch:
 
