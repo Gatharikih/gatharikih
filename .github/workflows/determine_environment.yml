@@ -16,6 +16,7 @@ jobs:
       branch_name: ${{ steps.set_env.outputs.branch_name }}
       environment_name: ${{ steps.set_env.outputs.environment_name }}
       environment_name_normalized: ${{ steps.set_env.outputs.environment_name_normalized }}
+      repo_name: ${{ steps.set_env.outputs.repo_name }}
 
     steps:
       - name: Checkout code
@@ -45,9 +46,11 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "environment_name=$ENVIRONMENT_NAME" >> $GITHUB_OUTPUT
           echo "environment_name_normalized=$ENVIRONMENT_NAME_NORMALIZED" >> $GITHUB_OUTPUT
+          echo "repo_name=${GITHUB_REPOSITORY#*/}" >> $GITHUB_OUTPUT
 
       - name: Display environment variables
         run: |
-          echo "Branch Name: ${{ steps.set_env.outputs.branch_name  }}"
+          echo "Branch Name: ${{ steps.set_env.outputs.branch_name }}"
           echo "Environment Name: ${{ steps.set_env.outputs.environment_name }}"
-          echo "Normalized Environment Name: ${{ steps.set_env.outputs.environment_name_normalized  }}"
+          echo "Normalized Environment Name: ${{ steps.set_env.outputs.environment_name_normalized }}"
+          echo "Repo Name: ${{ steps.set_env.outputs.repo_name }}"
