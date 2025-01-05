@@ -6,6 +6,9 @@ on:
       environment_name:
         description: "Detected environment name"
         value: ${{ jobs.determine_environment.outputs.environment_name }}
+      repo_name:
+        description: "Parsed repo name"
+        value: ${{ jobs.determine_environment.outputs.repo_name }}
   workflow_dispatch:
 
 jobs:
