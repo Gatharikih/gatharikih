@@ -1,0 +1,39 @@
+name: Pull Request Title Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+jobs:
+  check-pr-title:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == false
+
+    steps:
+      - name: Check PR Title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "Checking PR Title: $PR_TITLE"
+          
+          # Define valid types
+          VALID_TYPES="build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test"
+          
+          # Check against conventional commits format
+          if ! echo "$PR_TITLE" | grep -qE "^(${VALID_TYPES})(\(.+\))?: .+"; then
+            echo "❌ Error: PR title does not follow Conventional Commits format"
+            echo ""
+            echo "Expected format: <type>(<scope>): <description>"
+            echo "Example: feat(auth): add OAuth2 authentication"
+            echo ""
+            echo "Valid types are:"
+            echo "$VALID_TYPES" | tr '|' '\n' | sed 's/^/- /'
+            echo ""
+            echo "For more information, see: https://www.conventionalcommits.org/"
+            exit 1
+          fi
+          
+          echo "✅ PR title follows Conventional Commits format"
