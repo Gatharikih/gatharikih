@@ -5,14 +5,13 @@ on:
   workflow_dispatch:
     inputs:
       repository:
-        description: 'Repository to clean up (format: owner/repo)'
+        description: 'Repository to clean up (format: owner/repo or "all" for all repos)'
         required: false
         type: string
-        default: ${{ github.repository }}
+        default: 'all'
 
 jobs:
   cleanup:
-    # Run only on main or master branch
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
@@ -36,69 +35,86 @@ jobs:
               }
             }
 
-            // Get target repository from input or default to current repo
-            const targetRepo = context.payload.inputs?.repository || context.repo.owner + '/' + context.repo.repo;
-            const [owner, repo] = targetRepo.split('/');
+            async function cleanupRepo(owner, repo) {
+              console.log(`Processing repository: ${owner}/${repo}`);
+              
+              // Check if repo has workflows before proceeding
+              const hasRepoWorkflows = await hasWorkflows(owner, repo);
+              if (!hasRepoWorkflows) {
+                console.log(`Repository ${owner}/${repo} has no workflows. Skipping cleanup.`);
+                return;
+              }
 
-            console.log(`Target repository: ${owner}/${repo}`);
+              // Delete artifacts
+              try {
+                const { data: artifacts } = await github.rest.actions.listArtifactsForRepo({
+                  owner: owner,
+                  repo: repo,
+                  per_page: 100
+                });
+                
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - 2);
+                
+                for (const artifact of artifacts.artifacts) {
+                  if (new Date(artifact.created_at) < cutoffDate) {
+                    await github.rest.actions.deleteArtifact({
+                      owner: owner,
+                      repo: repo,
+                      artifact_id: artifact.id
+                    });
+                    console.log(`Deleted artifact: ${artifact.name} (ID: ${artifact.id})`);
+                  }
+                }
+              } catch (error) {
+                console.log(`Error processing artifacts: ${error.message}`);
+              }
 
-            // Check if repo has workflows before proceeding
-            const hasRepoWorkflows = await hasWorkflows(owner, repo);
-            if (!hasRepoWorkflows) {
-              console.log(`Repository ${owner}/${repo} has no workflows. Skipping cleanup.`);
-              return;
+              // Delete caches
+              try {
+                const { data: caches } = await github.rest.actions.getActionsCacheList({
+                  owner: owner,
+                  repo: repo,
+                  per_page: 100
+                });
+                
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - 2);
+                
+                for (const cache of caches.actions_caches) {
+                  if (new Date(cache.created_at) < cutoffDate) {
+                    await github.rest.actions.deleteActionsCacheById({
+                      owner: owner,
+                      repo: repo,
+                      cache_id: cache.id
+                    });
+                    console.log(`Deleted cache: ${cache.key} (ID: ${cache.id})`);
+                  }
+                }
+              } catch (error) {
+                console.log(`Error processing caches: ${error.message}`);
+              }
             }
 
-            console.log(`Processing repository: ${owner}/${repo}`);
-
-            // Delete artifacts
-            try {
-              const { data: artifacts } = await github.rest.actions.listArtifactsForRepo({
-                owner: owner,
-                repo: repo,
-                per_page: 100
-              });
-              
-              const cutoffDate = new Date();
-              cutoffDate.setDate(cutoffDate.getDate() - 2);
-              
-              for (const artifact of artifacts.artifacts) {
-                if (new Date(artifact.created_at) < cutoffDate) {
-                  await github.rest.actions.deleteArtifact({
-                    owner: owner,
-                    repo: repo,
-                    artifact_id: artifact.id
-                  });
-                  console.log(`Deleted artifact: ${artifact.name} (ID: ${artifact.id})`);
+            // Get target repository from input
+            const targetRepo = context.payload.inputs?.repository || 'all';
+            
+            if (targetRepo === 'all') {
+              console.log('Processing all repositories...');
+              try {
+                const { data: repos } = await github.rest.repos.listForAuthenticatedUser({
+                  per_page: 100
+                });
+                
+                for (const repo of repos) {
+                  await cleanupRepo(repo.owner.login, repo.name);
                 }
+              } catch (error) {
+                console.log(`Error listing repositories: ${error.message}`);
               }
-            } catch (error) {
-              console.log(`Error processing artifacts: ${error.message}`);
-            }
-
-            // Delete caches
-            try {
-              const { data: caches } = await github.rest.actions.getActionsCacheList({
-                owner: owner,
-                repo: repo,
-                per_page: 100
-              });
-              
-              const cutoffDate = new Date();
-              cutoffDate.setDate(cutoffDate.getDate() - 2);
-              
-              for (const cache of caches.actions_caches) {
-                if (new Date(cache.created_at) < cutoffDate) {
-                  await github.rest.actions.deleteActionsCacheById({
-                    owner: owner,
-                    repo: repo,
-                    cache_id: cache.id
-                  });
-                  console.log(`Deleted cache: ${cache.key} (ID: ${cache.id})`);
-                }
-              }
-            } catch (error) {
-              console.log(`Error processing caches: ${error.message}`);
+            } else {
+              const [owner, repo] = targetRepo.split('/');
+              await cleanupRepo(owner, repo);
             }
 
       - name: Log cleanup completion
