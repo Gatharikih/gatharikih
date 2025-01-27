@@ -2,6 +2,7 @@ name: Clean Up Old Artifacts and Caches
 on:
   schedule:
     - cron: '0 0 * * *'
+  workflow_call:
   workflow_dispatch:
     inputs:
       repository:
