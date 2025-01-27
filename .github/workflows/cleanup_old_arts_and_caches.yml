@@ -1,0 +1,67 @@
+name: Clean Up Old Artifacts and Caches
+
+on:
+  schedule:
+    # Runs daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Delete old workflow artifacts
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: artifacts } = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100, # Adjust based on your needs
+            });
+
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - 2); // Delete artifacts older than 2 days
+
+            for (const artifact of artifacts.artifacts) {
+              if (new Date(artifact.created_at) < cutoffDate) {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+                console.log(`Deleted artifact: ${artifact.name} (ID: ${artifact.id})`);
+              }
+            }
+
+      - name: Delete old caches
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: caches } = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100, # Adjust based on your needs
+            });
+
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - 2); // Delete caches older than 2 days
+
+            for (const cache of caches.actions_caches) {
+              if (new Date(cache.created_at) < cutoffDate) {
+                await github.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id,
+                });
+                console.log(`Deleted cache: ${cache.key} (ID: ${cache.id})`);
+              }
+            }
+
+      - name: Log cleanup completion
+        run: |
+          echo "Cleanup of old artifacts and caches completed successfully!"
