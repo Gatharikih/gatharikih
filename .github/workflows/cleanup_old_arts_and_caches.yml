@@ -1,12 +1,19 @@
 name: Clean Up Old Artifacts and Caches
 on:
   schedule:
-    # Runs daily at midnight UTC
-    - cron: '0 0 * * *'  # Fixed cron syntax
-  workflow_dispatch: # Allows manual triggering
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'Repository to clean up (format: owner/repo)'
+        required: false
+        type: string
+        default: ${{ github.repository }}
 
 jobs:
   cleanup:
+    # Run only on main or master branch
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,7 +23,6 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            // First check if repository has workflows
             async function hasWorkflows(owner, repo) {
               try {
                 const { data: workflows } = await github.rest.actions.listRepoWorkflows({
@@ -30,8 +36,11 @@ jobs:
               }
             }
 
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            // Get target repository from input or default to current repo
+            const targetRepo = context.payload.inputs?.repository || context.repo.owner + '/' + context.repo.repo;
+            const [owner, repo] = targetRepo.split('/');
+
+            console.log(`Target repository: ${owner}/${repo}`);
 
             // Check if repo has workflows before proceeding
             const hasRepoWorkflows = await hasWorkflows(owner, repo);
