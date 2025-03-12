@@ -18,7 +18,7 @@ jobs:
         id: validate_commit
         run: |
           COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-          REGEX="^(feat|fix|docs|style|refactor|test|chore): .+$"
+          REGEX="^(bump|feat|fix|docs|style|refactor|test|chore): .+$"
           if [[ ! "$COMMIT_MESSAGE" =~ $REGEX ]]; then
             echo "Invalid commit message: '$COMMIT_MESSAGE'"
             echo "Commit message must match the regex: $REGEX"
