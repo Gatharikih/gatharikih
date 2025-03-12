@@ -16,7 +16,7 @@ jobs:
           echo "Checking PR Title: $PR_TITLE"
           
           # Define valid types
-          VALID_TYPES="build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test"
+          VALID_TYPES="build|bump|chore|ci|docs|feat|fix|perf|refactor|revert|style|test"
           
           # Check against conventional commits format
           if ! echo "$PR_TITLE" | grep -qE "^(${VALID_TYPES})(\(.+\))?: .+"; then
