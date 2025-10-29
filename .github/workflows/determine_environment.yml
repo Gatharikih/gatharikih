@@ -1,60 +1,340 @@
-name: Determine environment
+name: Complete CI/CD Pipeline
 
 on:
-  workflow_call:
-    outputs:
-      environment_name:
-        description: "Detected environment name"
-        value: ${{ jobs.determine_environment.outputs.environment_name }}
-      repo_name:
-        description: "Parsed repo name"
-        value: ${{ jobs.determine_environment.outputs.repo_name }}
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - development
+      - staging
+      - 'feature/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - main
+      - develop
   workflow_dispatch:
 
+env:
+  DOCKER_USERNAME: scytalesystems
+
 jobs:
-  determine_environment:
+  # Step 1: Determine environment from branch
+  determine-environment:
+    uses: ./.github/workflows/determine-environment.yml
+    with:
+      fail_on_unknown: false
+      default_environment: development
+  
+  # Step 2: Detect project language and version
+  detect-project:
+    uses: ./.github/workflows/detect-language-version.yml
+  
+  # Step 3: Validate based on project type
+  validate:
+    name: Validate ${{ needs.detect-project.outputs.project_language }} Project
+    needs: [determine-environment, detect-project]
     runs-on: ubuntu-latest
-
-    outputs:
-      branch_name: ${{ steps.set_env.outputs.branch_name }}
-      repo_name: ${{ steps.set_env.outputs.repo_name }}
-      environment_name: ${{ steps.set_env.outputs.environment_name }}
-      environment_name_normalized: ${{ steps.set_env.outputs.environment_name_normalized }}
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Determine environment
-        id: set_env
+      
+      # JavaScript/TypeScript validation
+      - name: Setup Node.js
+        if: needs.detect-project.outputs.project_language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install JS dependencies
+        if: needs.detect-project.outputs.project_language == 'javascript'
+        run: npm ci
+      
+      - name: TypeScript check
+        if: needs.detect-project.outputs.project_language == 'javascript' && hashFiles('tsconfig.json') != ''
+        run: npx tsc --noEmit
+      
+      - name: ESLint
+        if: needs.detect-project.outputs.project_language == 'javascript'
+        run: npm run lint --if-present
+        continue-on-error: true
+      
+      - name: Run tests
+        if: needs.detect-project.outputs.project_language == 'javascript'
+        run: npm test --if-present
+        continue-on-error: ${{ needs.determine-environment.outputs.is_production != 'true' }}
+      
+      - name: Build application
+        if: needs.detect-project.outputs.project_language == 'javascript'
+        run: NODE_ENV=production npm run build
+      
+      # Java validation
+      - name: Setup Java
+        if: needs.detect-project.outputs.project_language == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+      
+      - name: Maven build
+        if: needs.detect-project.outputs.project_language == 'java' && hashFiles('pom.xml') != ''
+        run: mvn clean verify -B
+      
+      - name: Gradle build
+        if: needs.detect-project.outputs.project_language == 'java' && hashFiles('build.gradle*') != ''
+        run: ./gradlew build
+  
+  # Step 4: Build Docker image (skip for PRs unless to main)
+  build-docker:
+    name: Build Docker Image
+    needs: [determine-environment, detect-project, validate]
+    if: |
+      (github.event_name == 'push') ||
+      (github.event_name == 'pull_request' && github.base_ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_USERNAME }}/${{ needs.determine-environment.outputs.repo_name }}
+          tags: |
+            type=raw,value=${{ needs.determine-environment.outputs.environment_name }}
+            type=raw,value=${{ needs.detect-project.outputs.project_version }}-${{ needs.determine-environment.outputs.environment_name }}
+            type=raw,value=latest,enable=${{ needs.determine-environment.outputs.is_production == 'true' }}
+            type=sha,prefix=${{ needs.determine-environment.outputs.branch_name }}-
+          labels: |
+            org.opencontainers.image.title=${{ needs.determine-environment.outputs.repo_name }}
+            org.opencontainers.image.description=Built for ${{ needs.determine-environment.outputs.environment_name_normalized }} environment
+            org.opencontainers.image.version=${{ needs.detect-project.outputs.project_version }}
+            app.environment=${{ needs.determine-environment.outputs.environment_name }}
+            app.language=${{ needs.detect-project.outputs.project_language }}
+      
+      - name: Prepare build files
         run: |
-          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          # Create next.config.js if needed for JS projects
+          if [[ "${{ needs.detect-project.outputs.project_language }}" == "javascript" ]]; then
+            if [ ! -f "next.config.js" ] && [ ! -f "next.config.mjs" ]; then
+              echo "Creating next.config.js..."
+              cat > next.config.js << 'EOF'
+          /** @type {import('next').NextConfig} */
+          const nextConfig = {
+            output: 'standalone',
+          }
+          module.exports = nextConfig
+          EOF
+            fi
+          fi
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+            PROJECT_VERSION=${{ needs.detect-project.outputs.project_version }}
+            ENVIRONMENT=${{ needs.determine-environment.outputs.environment_name }}
+      
+      - name: Generate deployment files
+        if: github.event_name != 'pull_request'
+        run: |
+          # Create environment-specific deployment script
+          cat > deploy-${{ needs.determine-environment.outputs.environment_name }}.sh << 'EOF'
+          #!/bin/bash
+          set -e
           
-          if [[ "${{ github.ref }}" == "refs/heads/development" || "${{ github.ref }}" == "refs/heads/dev" || "${{ github.ref }}" == "refs/heads/stage" ]]; then
-            ENVIRONMENT_NAME="development"
-            ENVIRONMENT_NAME_NORMALIZED="Development"
-          elif [[ "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/canary" ]]; then
-            ENVIRONMENT_NAME="production"
-            ENVIRONMENT_NAME_NORMALIZED="Production"
-          elif [[ "${{ github.ref }}" == "refs/heads/testing" ]]; then
-            ENVIRONMENT_NAME="testing"
-            ENVIRONMENT_NAME_NORMALIZED="Testing"
-          else
-            echo "Environment name could not be determined"
-            exit 1
+          # Deployment Configuration
+          ENVIRONMENT="${{ needs.determine-environment.outputs.environment_name }}"
+          VERSION="${{ needs.detect-project.outputs.project_version }}"
+          IMAGE="${{ env.DOCKER_USERNAME }}/${{ needs.determine-environment.outputs.repo_name }}:${VERSION}-${ENVIRONMENT}"
+          CONTAINER_NAME="${{ needs.determine-environment.outputs.repo_name }}_${ENVIRONMENT}"
+          PORT=9002
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚀 Deploying to ${{ needs.determine-environment.outputs.environment_name_normalized }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Image:       ${IMAGE}"
+          echo "Container:   ${CONTAINER_NAME}"
+          echo "Port:        ${PORT}"
+          echo "Deploy URL:  ${{ needs.determine-environment.outputs.deploy_url }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          # Stop existing container
+          if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+            echo "⏹️  Stopping existing container..."
+            docker stop ${CONTAINER_NAME} || true
+            docker rm ${CONTAINER_NAME} || true
           fi
           
-          # Set outputs
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          echo "repo_name=${GITHUB_REPOSITORY#*/}" >> $GITHUB_OUTPUT
-          echo "environment_name=$ENVIRONMENT_NAME" >> $GITHUB_OUTPUT
-          echo "environment_name_normalized=$ENVIRONMENT_NAME_NORMALIZED" >> $GITHUB_OUTPUT
-
-      - name: Display environment variables
+          # Pull latest image
+          echo "⬇️  Pulling image..."
+          docker pull ${IMAGE}
+          
+          # Start new container
+          echo "▶️  Starting container..."
+          docker run -d \
+            --name ${CONTAINER_NAME} \
+            --restart unless-stopped \
+            -p ${PORT}:9002 \
+            -e NODE_ENV=${{ needs.determine-environment.outputs.environment_name == 'production' && 'production' || 'development' }} \
+            -e ENVIRONMENT=${ENVIRONMENT} \
+            ${IMAGE}
+          
+          # Wait for container to be healthy
+          echo "⏳ Waiting for application to start..."
+          sleep 5
+          
+          # Verify deployment
+          if docker ps | grep -q ${CONTAINER_NAME}; then
+            echo ""
+            echo "✅ Deployment successful!"
+            echo ""
+            echo "📊 Container Status:"
+            docker ps --filter "name=${CONTAINER_NAME}" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            echo ""
+            echo "🌐 Application URL: ${{ needs.determine-environment.outputs.deploy_url }}"
+            echo ""
+            echo "📝 Useful Commands:"
+            echo "  View logs:    docker logs -f ${CONTAINER_NAME}"
+            echo "  Stop:         docker stop ${CONTAINER_NAME}"
+            echo "  Restart:      docker restart ${CONTAINER_NAME}"
+            echo "  Remove:       docker rm -f ${CONTAINER_NAME}"
+          else
+            echo ""
+            echo "❌ Deployment failed!"
+            echo ""
+            docker logs ${CONTAINER_NAME}
+            exit 1
+          fi
+          EOF
+          
+          chmod +x deploy-${{ needs.determine-environment.outputs.environment_name }}.sh
+          
+          # Create docker-compose for this environment
+          cat > docker-compose.${{ needs.determine-environment.outputs.environment_name }}.yml << EOF
+          version: '3.8'
+          
+          services:
+            app:
+              image: ${{ env.DOCKER_USERNAME }}/${{ needs.determine-environment.outputs.repo_name }}:${{ needs.detect-project.outputs.project_version }}-${{ needs.determine-environment.outputs.environment_name }}
+              container_name: ${{ needs.determine-environment.outputs.repo_name }}_${{ needs.determine-environment.outputs.environment_name }}
+              ports:
+                - "9002:9002"
+              environment:
+                - NODE_ENV=${{ needs.determine-environment.outputs.environment_name == 'production' && 'production' || 'development' }}
+                - ENVIRONMENT=${{ needs.determine-environment.outputs.environment_name }}
+              restart: unless-stopped
+              healthcheck:
+                test: ["CMD", "curl", "-f", "http://localhost:9002"]
+                interval: 30s
+                timeout: 5s
+                retries: 3
+                start_period: 30s
+          EOF
+          
+          # Create README for deployment
+          cat > DEPLOYMENT.md << EOF
+          # Deployment Guide - ${{ needs.determine-environment.outputs.environment_name_normalized }}
+          
+          ## Quick Deploy
+          
+          \`\`\`bash
+          # Using deployment script
+          ./deploy-${{ needs.determine-environment.outputs.environment_name }}.sh
+          
+          # Or using docker-compose
+          docker-compose -f docker-compose.${{ needs.determine-environment.outputs.environment_name }}.yml up -d
+          
+          # Or using docker directly
+          docker pull ${{ env.DOCKER_USERNAME }}/${{ needs.determine-environment.outputs.repo_name }}:${{ needs.detect-project.outputs.project_version }}-${{ needs.determine-environment.outputs.environment_name }}
+          docker run -d -p 9002:9002 ${{ env.DOCKER_USERNAME }}/${{ needs.determine-environment.outputs.repo_name }}:${{ needs.detect-project.outputs.project_version }}-${{ needs.determine-environment.outputs.environment_name }}
+          \`\`\`
+          
+          ## Environment Details
+          
+          - **Environment**: ${{ needs.determine-environment.outputs.environment_name_normalized }}
+          - **Version**: ${{ needs.detect-project.outputs.project_version }}
+          - **Language**: ${{ needs.detect-project.outputs.project_language }}
+          - **Runtime**: ${{ needs.detect-project.outputs.runtime_version }}
+          - **Deploy URL**: ${{ needs.determine-environment.outputs.deploy_url }}
+          - **Production**: ${{ needs.determine-environment.outputs.is_production }}
+          
+          ## Docker Images
+          
+          \`\`\`
+          ${{ steps.meta.outputs.tags }}
+          \`\`\`
+          EOF
+      
+      - name: Upload deployment artifacts
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-${{ needs.determine-environment.outputs.environment_name }}
+          path: |
+            deploy-*.sh
+            docker-compose.*.yml
+            DEPLOYMENT.md
+          retention-days: 30
+      
+      - name: Build summary
         run: |
-          echo "Branch Name: ${{ steps.set_env.outputs.branch_name }}"
-          echo "Repo Name: ${{ steps.set_env.outputs.repo_name }}"
-          echo "Environment Name: ${{ steps.set_env.outputs.environment_name }}"
-          echo "Normalized Environment Name: ${{ steps.set_env.outputs.environment_name_normalized }}"
-
+          echo "## 🎉 Build Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 🌍 Environment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Name**: ${{ needs.determine-environment.outputs.environment_name_normalized }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ needs.determine-environment.outputs.branch_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Production**: ${{ needs.determine-environment.outputs.is_production == 'true' && '✅ Yes' || '❌ No' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deploy URL**: ${{ needs.determine-environment.outputs.deploy_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 📦 Project" >> $GITHUB_STEP_SUMMARY
+          echo "- **Language**: ${{ needs.detect-project.outputs.project_language }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.detect-project.outputs.project_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runtime**: ${{ needs.detect-project.outputs.runtime_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 🐳 Docker Images" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🚀 Deploy Commands" >> $GITHUB_STEP_SUMMARY
+            echo '```bash' >> $GITHUB_STEP_SUMMARY
+            echo "# Download and run deployment script" >> $GITHUB_STEP_SUMMARY
+            echo "./deploy-${{ needs.determine-environment.outputs.environment_name }}.sh" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "# Or pull and run directly" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull ${{ env.DOCKER_USERNAME }}/${{ needs.determine-environment.outputs.repo_name }}:${{ needs.detect-project.outputs.project_version }}-${{ needs.determine-environment.outputs.environment_name }}" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
