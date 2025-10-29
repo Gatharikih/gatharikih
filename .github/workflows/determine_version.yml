@@ -1,163 +1,87 @@
 name: Detect Project Language and Version
-
 on:
   workflow_call:
     outputs:
       project_language:
-        description: "Detected project language (java, javascript, python, go, other)"
-        value: ${{ jobs.detect.outputs.project_language }}
+        description: "Detected project language"
+        value: ${{ jobs.detect_language.outputs.project_language }}
       project_version:
         description: "Detected project version"
-        value: ${{ jobs.detect.outputs.project_version }}
-      runtime_version:
-        description: "Detected runtime version (e.g., Node 20, Java 17)"
-        value: ${{ jobs.detect.outputs.runtime_version }}
+        value: ${{ jobs.detect_version.outputs.project_version }}
   workflow_dispatch:
-
 jobs:
-  # Combined detection job for efficiency
-  detect:
+  detect_language:
     runs-on: ubuntu-latest
     outputs:
-      project_language: ${{ steps.detect.outputs.project_language }}
-      project_version: ${{ steps.detect.outputs.project_version }}
-      runtime_version: ${{ steps.detect.outputs.runtime_version }}
+      project_language: ${{ steps.detect_language.outputs.project_language }}
       
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
-      # Install all tools at once (more efficient)
-      - name: Install detection tools
+      - name: Detect language 
+        id: detect_language
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq libxml2-utils jq
-        continue-on-error: false
-      
-      - name: Detect language, version, and runtime
-        id: detect
-        run: |
-          PROJECT_LANGUAGE="other"
-          PROJECT_VERSION="1.0.0"
-          RUNTIME_VERSION="unknown"
-          
-          # Java Detection
           if [[ -f "pom.xml" ]]; then
-            echo "✅ Java project detected (Maven)"
             PROJECT_LANGUAGE="java"
-            
-            # Extract version from pom.xml
-            if command -v xmllint &> /dev/null; then
-              PROJECT_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml 2>/dev/null || echo "1.0.0-SNAPSHOT")
-              
-              # Detect Java version requirement
-              JAVA_VERSION=$(xmllint --xpath "//*[local-name()='maven.compiler.source']/text()" pom.xml 2>/dev/null || \
-                           xmllint --xpath "//*[local-name()='java.version']/text()" pom.xml 2>/dev/null || \
-                           echo "17")
-              RUNTIME_VERSION="java-${JAVA_VERSION}"
-            fi
-          
-          # Gradle (Java/Kotlin)
-          elif [[ -f "build.gradle" ]] || [[ -f "build.gradle.kts" ]]; then
-            echo "✅ Java/Kotlin project detected (Gradle)"
-            PROJECT_LANGUAGE="java"
-            
-            # Try to extract version from gradle.properties or build.gradle
-            if [[ -f "gradle.properties" ]]; then
-              PROJECT_VERSION=$(grep -E "^version\s*=" gradle.properties | cut -d'=' -f2 | tr -d ' ' || echo "1.0.0")
-            fi
-            
-            RUNTIME_VERSION="java-17"
-          
-          # JavaScript/TypeScript (Node.js)
           elif [[ -f "package.json" ]]; then
-            echo "✅ JavaScript/TypeScript project detected"
             PROJECT_LANGUAGE="javascript"
-            
-            # Extract version from package.json
-            if command -v jq &> /dev/null; then
-              PROJECT_VERSION=$(jq -r '.version // "1.0.0"' package.json)
-              
-              # Detect Node.js version requirement
-              NODE_VERSION=$(jq -r '.engines.node // "20"' package.json | sed 's/[^0-9.]//g' | cut -d'.' -f1)
-              RUNTIME_VERSION="node-${NODE_VERSION}"
-            fi
-          
-          # Python
-          elif [[ -f "setup.py" ]] || [[ -f "pyproject.toml" ]] || [[ -f "requirements.txt" ]]; then
-            echo "✅ Python project detected"
-            PROJECT_LANGUAGE="python"
-            
-            # Try to extract version from various sources
-            if [[ -f "pyproject.toml" ]]; then
-              PROJECT_VERSION=$(grep -E "^version\s*=" pyproject.toml | cut -d'"' -f2 || echo "1.0.0")
-              PYTHON_VERSION=$(grep -E "^python\s*=" pyproject.toml | cut -d'"' -f2 | sed 's/[^0-9.]//g' | cut -d'.' -f1,2 || echo "3.11")
-            elif [[ -f "setup.py" ]]; then
-              PROJECT_VERSION=$(grep -E "version\s*=" setup.py | head -1 | cut -d'"' -f2 || cut -d"'" -f2 || echo "1.0.0")
-              PYTHON_VERSION="3.11"
-            else
-              PYTHON_VERSION="3.11"
-            fi
-            RUNTIME_VERSION="python-${PYTHON_VERSION}"
-          
-          # Go
-          elif [[ -f "go.mod" ]]; then
-            echo "✅ Go project detected"
-            PROJECT_LANGUAGE="go"
-            
-            # Extract module version (if tagged)
-            PROJECT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
-            
-            # Extract Go version
-            GO_VERSION=$(grep -E "^go\s+" go.mod | awk '{print $2}' || echo "1.21")
-            RUNTIME_VERSION="go-${GO_VERSION}"
-          
-          # Rust
-          elif [[ -f "Cargo.toml" ]]; then
-            echo "✅ Rust project detected"
-            PROJECT_LANGUAGE="rust"
-            
-            PROJECT_VERSION=$(grep -E "^version\s*=" Cargo.toml | head -1 | cut -d'"' -f2 || echo "1.0.0")
-            RUNTIME_VERSION="rust-1.75"
-          
           else
-            echo "⚠️  No recognized project type found"
             PROJECT_LANGUAGE="other"
-            PROJECT_VERSION="1.0.0"
-            RUNTIME_VERSION="unknown"
           fi
           
-          # Clean version string (remove SNAPSHOT, -dev, etc for Docker tags)
-          CLEAN_VERSION=$(echo "$PROJECT_VERSION" | sed 's/-SNAPSHOT//' | sed 's/-dev//')
-          
-          # Output results
           echo "project_language=${PROJECT_LANGUAGE}" >> $GITHUB_OUTPUT
-          echo "project_version=${PROJECT_VERSION}" >> $GITHUB_OUTPUT
-          echo "runtime_version=${RUNTIME_VERSION}" >> $GITHUB_OUTPUT
-          echo "clean_version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
-          
-          # Display summary
-          echo "## 🔍 Project Detection Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Language** | \`${PROJECT_LANGUAGE}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Version** | \`${PROJECT_VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Runtime** | \`${RUNTIME_VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Clean Version** | \`${CLEAN_VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+  detect_version:
+    needs: detect_language  
+    runs-on: ubuntu-latest
+    outputs:
+      project_version: ${{ steps.detect_version.outputs.project_version }}
       
-      - name: Validate detection
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Cache tools
+        id: cache-tools
+        uses: actions/cache@v4.2.0
+        with:
+          path: |
+            /usr/bin/xmllint
+            /usr/bin/jq
+          key: ${{ runner.os }}-tools-${{ hashFiles('pom.xml', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-tools-
+      - name: Install required tools
+        if: steps.cache-tools.outputs.cache-hit != 'true'
         run: |
-          if [[ "${{ steps.detect.outputs.project_language }}" == "other" ]]; then
-            echo "⚠️  Warning: Could not detect project language"
-            echo "Supported project types:"
-            echo "  - Java (pom.xml, build.gradle)"
-            echo "  - JavaScript/TypeScript (package.json)"
-            echo "  - Python (setup.py, pyproject.toml)"
-            echo "  - Go (go.mod)"
-            echo "  - Rust (Cargo.toml)"
-          else
-            echo "✅ Successfully detected: ${{ steps.detect.outputs.project_language }}"
-            echo "   Version: ${{ steps.detect.outputs.project_version }}"
-            echo "   Runtime: ${{ steps.detect.outputs.runtime_version }}"
+          if [[ -f "pom.xml" ]]; then
+            echo "Installing libxml2-utils..."
+            sudo apt-get update
+            sudo apt-get install -y libxml2-utils
+          elif [[ -f "package.json" ]]; then
+            echo "Installing jq..."
+            sudo apt-get update
+            sudo apt-get install -y jq
           fi
+      - name: Detect version 
+        id: detect_version
+        run: |
+          if [[ "${{ needs.detect_language.outputs.project_language }}" == "java" ]]; then
+            echo "Java project detected. Extracting version from pom.xml..."
+            PROJECT_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+          elif [[ "${{ needs.detect_language.outputs.project_language }}" == "javascript" ]]; then
+            echo "JavaScript project detected. Extracting version from package.json..."
+            PROJECT_VERSION=$(jq -r '.version' package.json)
+          else
+            echo "No specific version detection for this project type."
+            PROJECT_VERSION="1.0.0"
+          fi
+          
+          echo "project_version=${PROJECT_VERSION}" >> $GITHUB_OUTPUT
+  display_language_and_version:
+    needs: [detect_language, detect_version]  
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display project language & version
+        run: | 
+          echo "Project Language: ${{ needs.detect_language.outputs.project_language }}"
+          echo "Project Version: ${{ needs.detect_version.outputs.project_version }}"
